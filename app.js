@@ -22,11 +22,14 @@ async function main(){
 }
     main().catch(console.error);
 
-
+let database =[];
 async function listDatabases(client){
     databasesList = await client.db().admin().listDatabases();
     console.log("Databases:");
     databasesList.databases.forEach(element => {
-        console.log(element.name)
+        console.log(element.name);
+        database.push(element.name);
     });
 }
+
+app.get("/getdatabase",(req,res)=>res.send(database));
