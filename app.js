@@ -11,7 +11,7 @@ let collection;
 
 
 app.use(express.static('front-end/arun'));
-
+app.use(express.json());
 
 //database connection
 app.listen(3000,()=>{console.log("Server is running")
@@ -40,3 +40,15 @@ app.get('/getCountries',(req,res)=>{
     })
 });
 
+// get country details from database - arun
+app.post('/getCountryData',(req,res)=>{
+    value=req.body.country;
+    if(value=='united states of america'){
+        value='United States';
+    }
+    console.log(value)
+    collection.find({country:{ $regex : new RegExp(value, "i") }},{projection:{type:1}}).toArray(function(e,r){
+      if(e) throw e;
+      res.send(r);
+    })
+});

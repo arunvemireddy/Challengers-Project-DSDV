@@ -7,18 +7,28 @@ let svg = d3.select("#mapvis")
             .attr('width',width)
             .attr('height',height);
 
-let pop_data ={};
-let countries_data;
+let new_data ={};
+let countries_data=[];
+
 
 $.ajax({
     method:'get',
     url:'/getCountries',
     success:function(data){
-        countries_data=data; 
+        for(let i=0;i<data.length;i++){
+            if(data[i].country=='United States'){
+                data[i].country='united states of america';
+            }
+            countries_data[i]=data[i].country.toLowerCase();
+        }
+       afterdata();
     }
 })
 
 // world map topograph
+function afterdata(){
+
+
 d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
     .then(function(map){
     nc = topojson.feature(map,map.objects.countries);
@@ -37,28 +47,88 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         projection.scale(s).translate(t);
 
         var csv = URL.createObjectURL(new Blob([countries_data]));
-        
         d3.csv(csv).then(function(data){
-           
 
             svg.append('g').attr('class','counties')
             .selectAll('path')
             .data(nc.features)
             .enter().append('path')
             .attr('d',path)
-            .style('fill','steelblue')
-            .on('click',function(e,d){
-                d3.selectAll('.countryClass').style('fill','steelblue');
-                d3.select(this).style('fill','#1b3042').attr('class','countryClass');
-                console.log(e.target.__data__.properties.name);
-                document.getElementById('country').value = e.target.__data__.properties.name;
-                
+            .attr('stroke','black')
+            .style('fill',function(d){
+              d.properties.name = d.properties.name.toLowerCase();
+              console.log(d.properties.name);
+             if(countries_data.includes(d.properties.name.toString())){
+                    return 'red';
+                }else{
+                    return 'steelblue';
+                }
             })
-            // .on('mouseleave',function(e,d){
-            //     d3.select(this).style('fill','steelblue');
-            // })
-
+            .on('click',function(e,d){
+                if(countries_data.includes(e.target.__data__.properties.name)){
+                    d3.selectAll('.countryClass').style('fill','red');
+                    d3.select(this).style('fill','orange').attr('class','countryClass');
+                }
+                document.getElementById('country').value = e.target.__data__.properties.name;
+                piedata(e.target.__data__.properties.name);
+            })
         })
     })
 
-   
+}
+
+function piedata(value){
+    console.log(value);
+$.ajax({
+    method:'post',
+    url:'/getCountryData',
+    data: JSON.stringify({'country':value}),
+    dataType: 'json',
+    contentType: 'application/json',
+    success:function(data){
+       console.log(data);
+       let countTVShow=0;
+       let countMovie=0;
+       for(let i=0;i<data.length;i++){
+           if(data[i].type=='TV Show'){
+               countMovie=countMovie+1;
+           }else{
+               countTVShow=countTVShow+1;
+           }
+       }
+       document.getElementById('pievis').innerHTML='';
+       piechart(countMovie,countTVShow);
+    } 
+})
+}
+//pie chart
+
+function piechart(m,t){
+console.log(m);
+console.log(t);
+let width = 300;
+let height = 200;
+var data = [m,t];
+let svg = d3.select('#pievis').append('svg').attr('width',width).attr('height',height);
+radius = Math.min(width, height) / 2;
+let g=svg.append('g').attr('transform','translate('+width/2+","+height/2+")");
+var color = d3.scaleOrdinal(['brown','black']);
+var pie = d3.pie();
+var arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius);
+//Generate groups
+var arcs = g.selectAll("arc")
+        .data(pie(data))
+        .enter()
+        .append("g")
+        .attr("class", "arc")
+
+        arcs.append("path")
+        .attr("fill", function(d, i) {
+        return color(i);
+        })
+        
+        .attr("d", arc);
+        svg.append('text').text('Utah').style('color','green');
+        }
