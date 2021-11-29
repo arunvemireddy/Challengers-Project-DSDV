@@ -91,9 +91,9 @@ $.ajax({
        let countMovie=0;
        for(let i=0;i<data.length;i++){
            if(data[i].type=='TV Show'){
-               countMovie=countMovie+1;
-           }else{
                countTVShow=countTVShow+1;
+           }else{
+                countMovie=countMovie+1;
            }
        }
        document.getElementById('pievis').innerHTML='';
@@ -104,6 +104,12 @@ $.ajax({
 //pie chart
 
 function piechart(m,t){
+    document.getElementById('movie').value = m;
+    document.getElementById('tvshow').value = t;
+    
+    let mper=(m/(m+t))*100;
+    let tper=(t/(m+t))*100;
+
 console.log(m);
 console.log(t);
 let width = 300;
@@ -117,18 +123,20 @@ var pie = d3.pie();
 var arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
+
+        svg.append('rect').attr('x',0).attr('y',10).attr('width',10).attr('height',10).style('fill','brown');
+        svg.append('text').text('Movie').style('fill','brown').attr('x',15).attr('y',20).attr('font-size','14px');
+        svg.append('rect').attr('x',0).attr('y',25).attr('width',10).attr('height',10).style('fill','black');
+        svg.append('text').text('TV Show').style('fill','black').attr('x',15).attr('y',35).attr('font-size','14px');
 //Generate groups
 var arcs = g.selectAll("arc")
         .data(pie(data))
         .enter()
         .append("g")
         .attr("class", "arc")
-
         arcs.append("path")
         .attr("fill", function(d, i) {
         return color(i);
         })
-        
         .attr("d", arc);
-        svg.append('text').text('Utah').style('color','green');
         }
