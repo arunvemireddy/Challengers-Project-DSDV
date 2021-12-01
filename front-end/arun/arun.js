@@ -115,31 +115,32 @@ function piedata(value) {
 
 //pie chart
 function piechart(ndata) {
-    let data=[];
-    
-    for(let i=0;i<ndata.length;i++){
-        data.push(ndata[i].value);
-    }
 
-    let width = 300;
+    if(ndata.length>0){
+    let data=[];
+    let width = 400;
     let height = 200;
     let svg = d3.select('#pievis')
     .append('svg')
     .attr('width', width)
-    .attr('height', height);
+    .attr('height', height+300);
     radius = Math.min(width, height) / 2;
     let g = svg.append('g')
     .attr('transform', 'translate(' + width / 2 + "," + height / 2 + ")");
     var color = d3.scaleOrdinal(d3.schemeCategory10);
-    var pie = d3.pie();
+    var pie = d3.pie()
+      .value(function(d) {
+        return d.value;
+      })
+      .sort(null);
     var arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
 
    
     //Generate groups
-    var arcs = g.selectAll("arc")
-        .data(pie(data))
+    var arcs = g.selectAll(".arc")
+        .data(pie(ndata))
         .enter()
         .append("g")
         .attr("class", "arc")
@@ -148,7 +149,45 @@ function piechart(ndata) {
             return color(i);
         })
         .attr("d", arc);
+
+        var textG = g.selectAll(".labels")
+        .data(pie(ndata))
+        .enter().append("g")
+        .attr("class", "labels");
+  
+      // Append text labels to each arc
+      textG.append("text")
+        .attr("transform", function(d) {
+          return "translate(" + arc.centroid(d) + ")";
+        })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .attr("fill", "#fff")
+        .text(function(d, i) {
+          return d.data.value > 0 ? d.data.key : '';
+        })
+        .attr('font-size','10px')
+
+        let legend = svg.selectAll(".legend")
+                    .data(pie(ndata))
+                    .enter().append('g')
+                    .attr('class','legend')
+                    .attr('transform',(d,i)=>'translate('+-10+','+15*i+')');
+
+        legend.append("rect").attr('x',10)
+                .attr('width',10).attr('height',10).style('fill',function(d,i){
+         
+            return color(i);
+        });
+        legend.append("text")
+        .text(function(d){
+          return d.data.value + "  " + d.data.key;
+        })
+        .style("font-size", 12)
+        .attr("y", 10)
+        .attr("x", 25);
     }
+}
 
 function piechartratings() {
     let rad = document.querySelector('input[name="rad"]:checked').value;
@@ -187,12 +226,6 @@ function piechartratings() {
         })
 
     }else{
-        // svg.append('rect').attr('x', 0).attr('y', 10).attr('width', 10).attr('height', 10).style('fill', 'brown');
-        // svg.append('text').text('Movie').style('fill', 'brown').attr('x', 15).attr('y', 20).attr('font-size', '14px');
-        // svg.append('rect').attr('x', 0).attr('y', 25).attr('width', 10).attr('height', 10).style('fill', 'black');
-        // svg.append('text').text('TV Show').style('fill', 'black').attr('x', 15).attr('y', 35).attr('font-size', '14px');
-
-
         $.ajax({
             method: 'post',
             url: '/getCountryData',
@@ -217,6 +250,7 @@ function piechartratings() {
                     newData.push(item);
                     item=[];
                 })
+                document.getElementById('pievis').innerHTML = '';
                 piechart(newData);
                 
             }
