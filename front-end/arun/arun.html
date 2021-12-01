@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +11,7 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
 </head>
+
 <body>
     <label class="country">Country</label>
     <input type="text" id="country" disabled>
@@ -18,11 +20,14 @@
     <label class="tvshow">TV Show</label>
     <input type="text" disabled id='tvshow'>
     <h1>MapVis</h1>
-    <div id="mapvis" ></div>
-    <div id="pievis" >
-        
+    <div id="mapvis"></div>
+    <label>Type</label>
+    <input type="radio" name="rad" value="type" id='radi' onclick='piechartratings()' checked>
+    <label>Rating</label>
+    <input type="radio" name="rad" value="rating" onclick='piechartratings()'>
+    <div id="pievis">
     </div>
-    
     <script src="arun.js"></script>
 </body>
+
 </html>
