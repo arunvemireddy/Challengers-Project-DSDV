@@ -21,11 +21,13 @@ h1{
 }
 #country{
     color: red;
+    width: 200px;
 }
 
 .country{
     color: steelblue;
     font-weight: bold;
+   
 }
 
 .movie{
@@ -36,4 +38,9 @@ h1{
 .tvshow{
     color: steelblue;
     font-weight: bold;
+}
+
+.btn{
+    background-color: steelblue;
+    color: white;
 }

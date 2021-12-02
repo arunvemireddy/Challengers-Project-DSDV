@@ -19,7 +19,18 @@ $.ajax({
             if (data[i].country == 'United States') {
                 data[i].country = 'united states of america';
             }
-            countries_data[i] = data[i].country.toLowerCase();
+           if(data[i].country.includes(",")){
+               console.log(data[i].country);
+               val = data[i].country.split(",");
+               for(let i=0;i<val.length;i++){
+                if (val[i].country == 'United States') {
+                    val[i].country = 'united states of america';
+                }
+                   countries_data.push(val[i].trim().toLowerCase());
+               }
+           }else{
+                countries_data.push(data[i].country.toLowerCase());
+           }
         }
         afterdata();
     }
@@ -45,7 +56,6 @@ function afterdata() {
 
             var csv = URL.createObjectURL(new Blob([countries_data]));
             d3.csv(csv).then(function (data) {
-
                 svg.append('g').attr('class', 'counties')
                     .selectAll('path')
                     .data(nc.features)
@@ -54,7 +64,6 @@ function afterdata() {
                     .attr('stroke', 'black')
                     .style('fill', function (d) {
                         d.properties.name = d.properties.name.toLowerCase();
-                        console.log(d.properties.name);
                         if (countries_data.includes(d.properties.name.toString())) {
                             return 'red';
                         } else {
@@ -65,19 +74,22 @@ function afterdata() {
                         if (countries_data.includes(e.target.__data__.properties.name)) {
                             d3.selectAll('.countryClass').style('fill', 'red');
                             d3.select(this).style('fill', 'orange').attr('class', 'countryClass');
+                            console.log(this.style.fill);
                         }
-                        document.getElementById('country').value = e.target.__data__.properties.name;
-                        piedata(e.target.__data__.properties.name);
-                        $('input[id=radi]').prop('checked', true);
+                        document.getElementById('country').value = e.target.__data__.properties.name.toUpperCase();
+
+                        if(this.style.fill=='orange'){
+                            piedata(e.target.__data__.properties.name);
+                            $('input[id=radi]').prop('checked', true);
+                        }else{
+                            alert('please select red colored countries');
+                        }
                     })
             })
         })
-
 }
 
 function piedata(value) {
-    
-    console.log(value);
     $.ajax({
         method: 'post',
         url: '/getCountryData',
@@ -85,9 +97,6 @@ function piedata(value) {
         dataType: 'json',
         contentType: 'application/json',
         success: function (data) {
-            console.log(data);
-            let countTVShow = 0;
-            let countMovie = 0;
             const map = new Map();
             for (let i = 0; i < data.length; i++) {
                 if (map.get(data[i].type) == undefined) {
@@ -106,7 +115,6 @@ function piedata(value) {
                 item['key']=key;
                 newData.push(item);
                  item=[];
-    
             })
             piechart(newData);
         }
@@ -149,24 +157,6 @@ function piechart(ndata) {
             return color(i);
         })
         .attr("d", arc);
-
-        var textG = g.selectAll(".labels")
-        .data(pie(ndata))
-        .enter().append("g")
-        .attr("class", "labels");
-  
-      // Append text labels to each arc
-      textG.append("text")
-        .attr("transform", function(d) {
-          return "translate(" + arc.centroid(d) + ")";
-        })
-        .attr("dy", ".35em")
-        .style("text-anchor", "middle")
-        .attr("fill", "#fff")
-        .text(function(d, i) {
-          return d.data.value > 0 ? d.data.key : '';
-        })
-        .attr('font-size','10px')
 
         let legend = svg.selectAll(".legend")
                     .data(pie(ndata))
