@@ -76,3 +76,15 @@ app.post('/getCountryData',(req,res)=>{
       res.send(r);
     })
 });
+
+app.post('/getCountryDataRatings',(req,res)=>{
+    value=req.body.country;
+    if(value=='united states of america'){
+        value='United States';
+    }
+    console.log(value)
+    collection.find({country:{ $regex : new RegExp(value, "i") }},{projection:{rating:1}}).toArray(function(e,r){
+        if(e) throw e;
+        res.send(r);
+      })
+});
