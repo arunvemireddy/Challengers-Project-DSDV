@@ -6,6 +6,7 @@ let svg = d3.select("#mapvis")
     .append('svg')
     .attr('width', width)
     .attr('height', height);
+let g = svg.append('g');
 
 let new_data = {};
 let countries_data = [];
@@ -32,14 +33,24 @@ $.ajax({
                 countries_data.push(data[i].country.toLowerCase());
            }
         }
-        afterdata();
-    }
-})
 
-// world map topograph
-function afterdata() {
-    d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
+        
+
+        d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
+
+            let Tooltip = d3.select("#mapvis")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 1)
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+            .style('display','inline')
+            .style('position','fixed')
+            
             nc = topojson.feature(map, map.objects.countries);
             let projection = d3.geoMercator()
                                 .scale(1)
@@ -53,10 +64,10 @@ function afterdata() {
                 s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
                 t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
             projection.scale(s).translate(t);
-
+            
             var csv = URL.createObjectURL(new Blob([countries_data]));
             d3.csv(csv).then(function (data) {
-                svg.append('g').attr('class', 'counties')
+                g.attr('class', 'counties')
                     .selectAll('path')
                     .data(nc.features)
                     .enter().append('path')
@@ -67,7 +78,7 @@ function afterdata() {
                         if (countries_data.includes(d.properties.name.toString())) {
                             return 'red';
                         } else {
-                            return 'steelblue';
+                            return 'rgb(235, 224, 223)';
                         }
                     })
                     .on('click', function (e, d) {
@@ -76,6 +87,7 @@ function afterdata() {
                             d3.select(this).style('fill', 'orange').attr('class', 'countryClass');
                             console.log(this.style.fill);
                         }
+                    
                         document.getElementById('country').value = e.target.__data__.properties.name;
 
                         if(this.style.fill=='orange'){
@@ -85,9 +97,28 @@ function afterdata() {
                             alert('please select red colored countries');
                         }
                     })
+                    .on('mouseover',function(e,d){
+                       // d3.select(this).style('fill','black')
+                        Tooltip.html(e.target.__data__.properties.name)
+                        .style("left", (d3.pointer(e)[0]+20) + "px")
+                        .style("top",  (d3.pointer(e)[1] +100) + "px")
+                        .style('opacity',1);
+                    })
             })
         })
-}
+        var zoom = d3.zoom()
+                    .scaleExtent([1, 8])
+                     .on('zoom', function(event) {
+                    g.selectAll('path')
+                    .attr('transform', event.transform);
+        });
+
+        svg.call(zoom);
+    }
+        
+})
+
+
 
 function piedata(value) {
     $.ajax({
@@ -184,7 +215,9 @@ function piechartratings() {
     let country = document.getElementById('country').value;
     let newData=[];
     let item={};
-
+    console.log('arun');
+    console.log(country.length)
+    if(country.length>0){
     if(rad=='rating'){
         $.ajax({
             method: 'post',
@@ -246,4 +279,5 @@ function piechartratings() {
             }
         })
     }
+}
 }
