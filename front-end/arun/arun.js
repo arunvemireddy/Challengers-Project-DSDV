@@ -76,7 +76,7 @@ function afterdata() {
                             d3.select(this).style('fill', 'orange').attr('class', 'countryClass');
                             console.log(this.style.fill);
                         }
-                        document.getElementById('country').value = e.target.__data__.properties.name.toUpperCase();
+                        document.getElementById('country').value = e.target.__data__.properties.name;
 
                         if(this.style.fill=='orange'){
                             piedata(e.target.__data__.properties.name);
