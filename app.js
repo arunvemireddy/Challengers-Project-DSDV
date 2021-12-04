@@ -48,7 +48,7 @@ app.get('/barchart_grid.js', (req, res) => {
 
 // get countries from database - arun
 app.get('/getCountries',(req,res)=>{
-    collection.find({},{projection:{country:1}}).toArray(function(e,r){
+    collection.find({},{}).toArray(function(e,r){
       if(e) throw e;
       res.send(r);
     })
