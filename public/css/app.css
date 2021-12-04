@@ -1,0 +1,93 @@
+h1{
+    color: #2472b5;
+}
+
+#mapvis{
+    width: 50%;
+    float: left;
+    
+}
+
+#pievis{
+    width: 70%;
+    margin: 0px auto;
+    padding-top: 50px;
+}
+
+#movie{
+    color: red;
+}
+#tvshow{
+  color: red;
+}
+#country{
+    color: red;
+    width: 200px;
+    text-transform: uppercase;
+}
+
+.country{
+    color: steelblue;
+    font-weight: bold;
+   
+}
+
+.movie{
+    color: steelblue;
+    font-weight: bold;
+}
+
+.tvshow{
+    color: steelblue;
+    font-weight: bold;
+}
+
+.btn{
+    background-color: steelblue;
+    color: white;
+}
+
+.texLabel{
+    fill: black;
+}
+
+body,html{
+    height: 100%;
+}
+.topleft{
+    width: 75%;
+    height: 60%;
+    float: left;
+    background-color: antiquewhite;
+}
+.topright{
+    width: 25%;
+    height: 60%;
+    float:right;
+    background-color: rgb(230, 209, 179);
+}
+.bottomone{
+    float: right;
+    height:100%;
+    width:100%;
+    background-color:rgb(215, 238, 177)
+}
+.bottomtwoleft{
+    float: left;
+    height:100%;
+    width:50%;
+    background-color:rgb(155, 195, 218)
+}
+
+.bottomtworight{
+    float: right;
+    height:100%;
+    width:50%;
+    background-color:rgb(231, 144, 128)
+}
+
+#linechart{
+    margin: 0 auto;
+     width:50%;
+     padding-top:100px
+}
