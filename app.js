@@ -41,7 +41,7 @@ app.get('/bar',function(req,res){
 })
 
 app.get('/barchart_grid.js', (req, res) => {
-    fs.readFile('barchart_grid.js', (err, data) => {
+    fs.readFile('js/barchart_grid.js', (err, data) => {
         res.status(200);
         res.append('Context-Type', 'text/javascript');
         res.send(data);

@@ -1,0 +1,42 @@
+body {
+    text-align: center;
+}
+.bar {
+    text-align: center;
+    fill: black;
+}
+
+.bar-highlight {
+    fill: teal;
+}
+
+.bar-label-hidden {
+    visibility: hidden;
+    fill: black;
+}
+
+.bar-label {
+    visibility: visible;
+    fill: black;
+    text-anchor: middle;
+}
+
+.xlabel {
+    fill:black;
+    font-size: 18px;
+}
+
+.ylabel {
+    fill:black;
+    font-size: 18px;
+    transform: rotate(-90deg);
+}
+
+.tooltip {
+    fill:black;
+}
+
+.subplot-labels {
+    text-anchor: middle;
+    font-size: 18px;
+}
