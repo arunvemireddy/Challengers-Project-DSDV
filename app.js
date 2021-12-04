@@ -8,9 +8,8 @@ const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 let collection;
 
-
-
 app.use(express.static('front-end/arun'));
+app.use(express.static('front-end/mitch'));
 app.use(express.json());
 
 //database connection
@@ -39,8 +38,8 @@ app.get('/bar',function(req,res){
     })
 })
 
-app.get('/main_barchart.js', (req, res) => {
-    fs.readFile('main_barchart.js', (err, data) => {
+app.get('/barchart_grid.js', (req, res) => {
+    fs.readFile('barchart_grid.js', (err, data) => {
         res.status(200);
         res.append('Context-Type', 'text/javascript');
         res.send(data);
