@@ -22,7 +22,7 @@ $.ajax({
             }
            if(data[i].country.includes(",")){
                console.log(data[i].country);
-               val = data[i].country.split(",");
+               let val = data[i].country.split(",");
                for(let i=0;i<val.length;i++){
                 if (val[i].country == 'United States') {
                     val[i].country = 'united states of america';
@@ -30,10 +30,58 @@ $.ajax({
                    countries_data.push(val[i].trim().toLowerCase());
                }
            }else{
-                countries_data.push(data[i].country.toLowerCase());
+                countries_data.push(data[i].country.trim().toLowerCase());
            }
         }
 
+        let new_map = new Map();
+        for (let i = 0; i < data.length; i++) {
+            data[i].country = data[i].country.trim().toLowerCase();
+            if (data[i].country == 'United States') {
+                data[i].country = 'united states of america';
+            }
+           if(data[i].country.includes(",")){
+               console.log(data[i].country);
+               let val = data[i].country.split(",");
+               for(let i=0;i<val.length;i++){
+                if (val[i].country == 'United States') {
+                    val[i].country = 'united states of america';
+                }
+                   if(new_map.get(val[i].country)==undefined){
+                    new_map.set(val[i].country,1);
+                   }else{
+                       v = new_map.get(val[i].country);
+                       v=v+1;
+                       new_map.set(val[i].country,v);
+                   }
+                   
+               }
+           }else{
+            if(new_map.get(data[i].country)==undefined){
+                    new_map.set(data[i].country,1);
+               }else{
+                   v = new_map.get(data[i].country);
+                   v=v+1;
+                   new_map.set(data[i].country,v);
+               }
+           }
+        }
+
+        console.log(new_map);
+        let mdata=[];
+        let item={};
+        new_map.forEach((val,key)=>{
+            item['value']= parseInt(val);
+            item['key']=key;
+            mdata.push(item);
+            item=[];
+
+        })
+        console.log(mdata)
+        var colorScale = d3.scaleThreshold()
+                           .domain([d3.min(mdata,d=>d.value),d3.max(mdata,d=>d.value)])
+                           // .domain([-110,1000])
+                            .range(d3.schemeBlues[7]);
         
 
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
@@ -76,14 +124,18 @@ $.ajax({
                     .style('fill', function (d) {
                         d.properties.name = d.properties.name.toLowerCase();
                         if (countries_data.includes(d.properties.name.toString())) {
-                            return 'red';
+                           //return colorScale(new_map.get(d.properties.name));
+                           return 'rgb(52, 235, 229)';
                         } else {
-                            return 'rgb(235, 224, 223)';
+                            return 'white';
                         }
                     })
                     .on('click', function (e, d) {
                         if (countries_data.includes(e.target.__data__.properties.name)) {
-                            d3.selectAll('.countryClass').style('fill', 'red');
+                            d3.selectAll('.countryClass').style('fill', function(){
+                                //return colorScale(new_map.get(d.properties.name));
+                                return 'rgb(52, 235, 229)';
+                            });
                             d3.select(this).style('fill', 'orange').attr('class', 'countryClass');
                             console.log(this.style.fill);
                         }
@@ -100,7 +152,7 @@ $.ajax({
                     .on('mouseover',function(e,d){
                        // d3.select(this).style('fill','black')
                         Tooltip.html(e.target.__data__.properties.name)
-                        .style("left", (d3.pointer(e)[0]+20) + "px")
+                        .style("left", (d3.pointer(e)[0]+40) + "px")
                         .style("top",  (d3.pointer(e)[1] +100) + "px")
                         .style('opacity',1);
                     })
@@ -210,74 +262,74 @@ function piechart(ndata) {
     }
 }
 
-function piechartratings() {
-    let rad = document.querySelector('input[name="rad"]:checked').value;
-    let country = document.getElementById('country').value;
-    let newData=[];
-    let item={};
-    console.log('arun');
-    console.log(country.length)
-    if(country.length>0){
-    if(rad=='rating'){
-        $.ajax({
-            method: 'post',
-            url: '/getCountryDataRatings',
-            data: JSON.stringify({ 'country': country }),
-            dataType: 'json',
-            contentType: 'application/json',
-            success: function (data) {
-                const map = new Map();
-                for(let i=0;i<data.length;i++){
-                     if(map.get(data[i].rating)==undefined){
-                        map.set(data[i].rating,1);
-                     }else{
-                        value = map.get(data[i].rating);
-                        value = value+1;
-                        map.set(data[i].rating,value);
-                     }
-                }
-                map.forEach((val,key)=>{
-                    item['value']= parseInt(val);
-                    item['key']=key;
-                    newData.push(item);
-                     item=[];
+// function piechartratings() {
+//     let rad = document.querySelector('input[name="rad"]:checked').value;
+//     let country = document.getElementById('country').value;
+//     let newData=[];
+//     let item={};
+//     console.log('arun');
+//     console.log(country.length)
+//     if(country.length>0){
+//     if(rad=='rating'){
+//         $.ajax({
+//             method: 'post',
+//             url: '/getCountryDataRatings',
+//             data: JSON.stringify({ 'country': country }),
+//             dataType: 'json',
+//             contentType: 'application/json',
+//             success: function (data) {
+//                 const map = new Map();
+//                 for(let i=0;i<data.length;i++){
+//                      if(map.get(data[i].rating)==undefined){
+//                         map.set(data[i].rating,1);
+//                      }else{
+//                         value = map.get(data[i].rating);
+//                         value = value+1;
+//                         map.set(data[i].rating,value);
+//                      }
+//                 }
+//                 map.forEach((val,key)=>{
+//                     item['value']= parseInt(val);
+//                     item['key']=key;
+//                     newData.push(item);
+//                      item=[];
         
-                })
-                document.getElementById('pievis').innerHTML = '';
-                piechart(newData);
-            }
-        })
+//                 })
+//                 document.getElementById('pievis').innerHTML = '';
+//                 piechart(newData);
+//             }
+//         })
 
-    }else{
-        $.ajax({
-            method: 'post',
-            url: '/getCountryData',
-            data: JSON.stringify({ 'country': country }),
-            dataType: 'json',
-            contentType: 'application/json',
-            success: function (data) {
-                const map = new Map();
-                for (let i = 0; i < data.length; i++) {
-                    if (map.get(data[i].type) == undefined) {
-                        map.set(data[i].type,1);
-                    } else {
-                        value = map.get(data[i].type);
-                        value = value+1;
-                        map.set(data[i].type,value);
-                    }
-                }
-                document.getElementById('pievis').innerHTML = '';
-                map.forEach((val,key)=>{
-                    item['value']= parseInt(val);
-                    item['key']=key;
-                    newData.push(item);
-                    item=[];
-                })
-                document.getElementById('pievis').innerHTML = '';
-                piechart(newData);
+//     }else{
+//         $.ajax({
+//             method: 'post',
+//             url: '/getCountryData',
+//             data: JSON.stringify({ 'country': country }),
+//             dataType: 'json',
+//             contentType: 'application/json',
+//             success: function (data) {
+//                 const map = new Map();
+//                 for (let i = 0; i < data.length; i++) {
+//                     if (map.get(data[i].type) == undefined) {
+//                         map.set(data[i].type,1);
+//                     } else {
+//                         value = map.get(data[i].type);
+//                         value = value+1;
+//                         map.set(data[i].type,value);
+//                     }
+//                 }
+//                 document.getElementById('pievis').innerHTML = '';
+//                 map.forEach((val,key)=>{
+//                     item['value']= parseInt(val);
+//                     item['key']=key;
+//                     newData.push(item);
+//                     item=[];
+//                 })
+//                 document.getElementById('pievis').innerHTML = '';
+//                 piechart(newData);
                 
-            }
-        })
-    }
-}
-}
+//             }
+//         })
+//     }
+// }
+// }
