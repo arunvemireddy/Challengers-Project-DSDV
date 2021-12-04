@@ -157,6 +157,9 @@ $.ajax({
                         .style("top",  (d3.pointer(e)[1]) + "px")
                         .style('opacity',1);
                     })
+                    .on('mouseleave',function(e,d){
+                        Tooltip.style('opacity',0)
+                     })
             })
         })
         var zoom = d3.zoom()
