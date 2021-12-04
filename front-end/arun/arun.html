@@ -10,6 +10,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://d3js.org/topojson.v3.min.js"></script>
+
 </head>
 
 <body>
@@ -17,13 +18,15 @@
     <input type="text" id="country" disabled>
     <input type="button" onclick='location.reload()' value="Reset" class="btn">
     <h1>MapVis</h1>
-    <div id="mapvis"></div>
+    
     <!-- <label>Type</label>
     <input type="radio" name="rad" value="type" id='radi' onclick='piechartratings()' checked>
     <label>Rating</label>
     <input type="radio" name="rad" value="rating" onclick='piechartratings()'> -->
-    <div id="pievis">
-    </div>
+   
+    <div id="mapvis"></div>
+    <div id="pievis"></div>
+    <div id="linechart"></div>
     <script src="arun.js"></script>
 </body>
 </html>

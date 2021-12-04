@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<style>
+    
+</style>
+<body>
+    <div class="topleft">
+        <label class="country">Country</label>
+        <input type="text" id="country" disabled>
+        <input type="button" onclick='location.reload()' value="Reset" class="btn">
+        <label>Type</label>
+        <input type="radio" name="radio" value="type">
+        <label>Rating</label>
+        <input type="radio" name="radio" value="rating">
+        </label>
+        <div id="mapvis"></div>
+    </div>
+    
+    <div class="topright">
+        Pie Chart
+        <div id="pievis"></div>
+    </div>
+   
+    <div class="bottomone">
+        Mitch Bar Chart Grid
+    </div>
+    <div class="bottomtwoleft">
+        Sriya Bar Chart
+    </div>
+    <div class="bottomtworight">
+        Arun Line Chart
+        <div id="linechart"></div>
+    </div>
+    <script src="js/arun.js"></script>
+</body>
+</html>

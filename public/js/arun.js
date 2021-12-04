@@ -1,5 +1,5 @@
 
-let width = 960;
+let width = 1400;
 let height = 500;
 let fill = d3.scaleLog().range(['white', 'darkblue']);
 let svg = d3.select("#mapvis")
@@ -144,16 +144,17 @@ $.ajax({
 
                         if(this.style.fill=='orange'){
                             piedata(e.target.__data__.properties.name);
+                            //Linechart();
                             $('input[id=radi]').prop('checked', true);
                         }else{
-                            alert('please select red colored countries');
+                            alert('please select colored countries');
                         }
                     })
-                    .on('mouseover',function(e,d){
+                    .on('mousemove',function(e,d){
                        // d3.select(this).style('fill','black')
                         Tooltip.html(e.target.__data__.properties.name)
                         .style("left", (d3.pointer(e)[0]+40) + "px")
-                        .style("top",  (d3.pointer(e)[1] +100) + "px")
+                        .style("top",  (d3.pointer(e)[1]) + "px")
                         .style('opacity',1);
                     })
             })
@@ -167,6 +168,7 @@ $.ajax({
 
         svg.call(zoom);
     }
+    
         
 })
 
@@ -200,6 +202,7 @@ function piedata(value) {
                  item=[];
             })
             piechart(newData);
+            
         }
     })
 }
@@ -261,6 +264,131 @@ function piechart(ndata) {
         .attr("x", 25);
     }
 }
+
+Linechart();
+
+function Linechart(){
+    document.getElementById('linechart').innerHTML="";
+    let xLabel = 'Year';
+    let yLabel = 'No of Titles';
+    let margin = {top:20,right:20,left:45,bottom:30};
+    let width = 500-margin.top-margin.bottom;
+    let height = 500-margin.left-margin.right;
+    let svg = d3.select('#linechart')
+                .append('svg')
+                .attr('width',width+margin.left+margin.right)
+                .attr('height',height+margin.top+margin.bottom)
+                .append('g')
+                .attr('transform',"translate("+margin.left+" "+margin.top+")");
+        
+    let xScale = d3.scaleTime().range([0,width]);
+    let yScale = d3.scaleLinear().range([height,0]);
+
+    $.ajax({
+        method: 'get',
+        url: '/getCountries',
+        success: function (data) {
+            data.sort((a, b) => new Date(a.date_added) - new Date(b.date_added));
+            console.log("line chart");
+            console.log(data);
+            let line_map = new Map();
+            let type_line_map 
+            for(let i=0;i<data.length;i++){
+            
+                if(line_map.get(data[i].date_added)==undefined){
+                    let d = new Date(data[i].date_added);
+                    let x=d.getFullYear();
+                    if(line_map.get(x)==undefined){
+                        line_map.set(x,1);
+                    }else{
+                        let v = line_map.get(x);
+                        v=v+1;
+                        line_map.set(x,v);
+                    }
+                }
+            }
+
+            for(let i=0;i<data.length;i++){
+            
+                if(line_map.get(data[i].date_added)==undefined){
+                    let d = new Date(data[i].date_added);
+                    let x=d.getFullYear();
+                    if(line_map.get(x)==undefined){
+                        line_map.set(x,1);
+                    }else{
+                        let v = line_map.get(x);
+                        v=v+1;
+                        line_map.set(x,v);
+                    }
+                }
+            }
+
+            console.log(line_map)
+                let item={};
+                let line_data=[];
+                line_map.forEach((val,key)=>{
+                    item['value']=val;
+                    item['key']=key;
+                    
+                    if(!isNaN(item['key'])){
+                        line_data.push(item);
+                    }
+                    item={};
+                })
+                line_data.sort((a, b) => new Date(a.key) - new Date(b.key));
+                console.log(line_data);
+                xScale.domain([d3.min(line_data,d=>d.key),d3.max(line_data,d=>d.key)]);
+                yScale.domain([d3.min(line_data,d=>d.value),d3.max(line_data,d=>d.value)]);
+                
+                let xAxis = d3.axisBottom(xScale); ;
+                let yAxis = d3.axisLeft(yScale);
+
+                svg.append('g')
+                    .attr("transform","translate(0,"+height+")")
+                    .call(xAxis).attr('class','xAxisLine')
+                    .append('text')
+                    .attr('class','label')
+                    .attr('x',width-margin.left-margin.right)
+                    .attr('y',-6)
+                    .text(xLabel).attr('class','texLabel');
+
+                svg.append('g')
+                    .call(yAxis)
+                    .attr('class','yAxisLine')
+                    .append('text')
+                    .attr('class','label')
+                    .attr('transform','rotate(-90)')
+                    .attr('y',15).text(yLabel).attr('class','texLabel');
+
+                    
+
+                svg.append('path')
+                    .attr('fill','none')
+                    .datum(line_data)
+                    .attr('stroke','black')
+                    .attr("stroke-width", 1.5)
+                    .attr('d',d3.line().x(d=>xScale(d.key)).y(d=>yScale(d.value)))
+                
+                    svg.append('path')
+                    .attr('fill','none')
+                    .datum(line_data)
+                    .attr('stroke','black')
+                    .attr("stroke-width", 1.5)
+                    .attr('d',d3.line().x(d=>xScale(d.key)).y(d=>yScale(d.value)))
+                    //.attr('class','pathLine')
+                    // .on('mouseenter',(e,d)=>{
+                    //   d3.select(e.target).style('stroke','red').attr('class','patClas')
+                    // }).on('mouseleave',(e,d)=>{
+                    // d3.select(e.target).style('stroke','green').attr('class','patClas')
+                    // });
+
+                    }
+                })
+}
+
+
+
+// }
 
 // function piechartratings() {
 //     let rad = document.querySelector('input[name="rad"]:checked').value;

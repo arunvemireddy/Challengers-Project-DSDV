@@ -44,3 +44,7 @@ h1{
     background-color: steelblue;
     color: white;
 }
+
+.texLabel{
+    fill: black;
+}
