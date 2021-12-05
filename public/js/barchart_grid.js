@@ -1,7 +1,7 @@
 
-let grid_width = 750
+let grid_width = 800
 let grid_height = 650
-let grid_sizes = {left_margin: (grid_width/3)/5, plot_width: (grid_width/3)*(4/5), plot_height: (grid_height/3)*(3/5), top_margin: (grid_height/3)/5, bottom_margin: (grid_height/3)/5}
+let grid_sizes = {left_margin: (grid_width/3)*(3/10), plot_width: (grid_width/3)*(7/10), plot_height: (grid_height/3)*(13/20), top_margin: (grid_height/3)/5, bottom_margin: (grid_height/3)*(1/10)}
 let grid1 = {x:grid_sizes.left_margin, y:grid_sizes.top_margin + grid_sizes.plot_height}
 let grid2 = {x:2*grid_sizes.left_margin + grid_sizes.plot_width, y:grid_sizes.top_margin + grid_sizes.plot_height}
 let grid3 = {x:3*grid_sizes.left_margin + 2*grid_sizes.plot_width, y:grid_sizes.top_margin + grid_sizes.plot_height}
@@ -14,7 +14,7 @@ let grid9 = {x:3*grid_sizes.left_margin + 2*grid_sizes.plot_width, y:3*grid_size
 let grid = [grid1, grid2, grid3, grid4, grid5, grid6, grid7, grid8, grid9]
 
 console.log('working')
-let gridSVG = d3.select('#barchart-grid').append('svg').attr('width', grid_width).attr('height', grid_height)
+let gridSVG = d3.select('#barchart-grid').append('svg').attr('width', grid_width+20).attr('height', grid_height)
 let genres_to_display = 8;
 let type = 'Movie'
 let country = 'United States';
@@ -124,14 +124,18 @@ $.ajax({
             let xAxisTicks = x.ticks().filter(tick => Number.isInteger(tick))
             xAxis.tickValues(xAxisTicks).tickFormat(d3.format('d'))
             gridSVG.append('text').attr('transform', 'translate(' + (grid[i].x + .5 * grid_sizes.plot_width) + ', ' + (grid[i].y - grid_sizes.plot_height - 10) + ')').attr('class', 'subplot-labels').text(top_genres_list[i])
-            gridSVG.append('g').attr('transform', 'translate(' + 0 + ', ' + grid[i].y + ')').call(xAxis);
+            gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + 0 + ', ' + grid[i].y + ')').call(xAxis);
             //svg.append('text').attr('x', (width-margin.right)/2).attr('y', height).attr('class', 'xlabel').text('Rating')
-            gridSVG.append('g').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
+            gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
             //svg.append('text').attr('x', 0-(height/2)).attr('y', margin.left/2).attr('class', 'ylabel').text('Number of Titles')
             let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
                 d=>'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
             bars.append('rect').attr('width', d=> (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
+            if(i===3) {
+                gridSVG.append('text').attr('x', 0-grid_height/2).attr('y', grid_sizes.left_margin/4).attr('class', 'ylabel').text('R A T I N G')
+            }
         }
+        gridSVG.append('text').attr('x', grid_width/2).attr('y', grid_height).attr('class', 'xlabel').text('NUMBER OF TITLES')
 
         // let legend = svg.selectAll('.legend').data(color.domain()).enter().append('g').attr('class', 'legend')
         //     .attr('transform', (d, i) => 'translate(' + (width - margin.right) + ', ' + 15 * i + ')');
