@@ -15,7 +15,7 @@
     
 </style>
 <body>
-    <div class="topleft">
+    <div class="topleft" id="mapvis">
         <label class="country">Country</label>
         <input type="text" id="country" disabled>
         <input type="button" onclick='location.reload()' value="Reset" class="btn">
@@ -24,23 +24,13 @@
         <label>Rating</label>
         <input type="radio" name="radio" value="rating">
         </label>
-        <div id="mapvis"></div>
     </div>
     
-    <div class="topright">
-        Pie Chart
-        <div id="pievis"></div>
-    </div>
-   
-    <div id='barchart-grid' class="bottomone">
-    </div>
-    <div class="bottomtwoleft">
-        Arun Line Chart
-        <div id="linechart"></div>
-    </div>
-    <div class="bottomtworight">
-        Sriya Bar Chart
-    </div>
+    <div class="toprightone" id="pievis"></div>
+    <div class="toprighttwo" id='barchart-grid'></div>
+    <div class="bottomtwoleft" id="linechart"></div>
+    <div class="bottomtworight">Sriya Bar Chart</div>
+    
     <script src="js/arun.js"></script>
     <script src="js/barchart_grid.js">
          function callbar(){

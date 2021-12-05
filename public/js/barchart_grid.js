@@ -1,5 +1,5 @@
-let grid_width = 740
-let grid_height = 650
+let grid_width = $('#barchart-grid').width();
+let grid_height = $('#barchart-grid').height()
 let grid_sizes = {left_margin: (grid_width/3)*(3/10), plot_width: (grid_width/3)*(7/10), plot_height: (grid_height/3)*(13/20), top_margin: (grid_height/3)/5, bottom_margin: (grid_height/3)*(1/10)}
 let grid1 = {x:grid_sizes.left_margin, y:grid_sizes.top_margin + grid_sizes.plot_height}
 let grid2 = {x:2*grid_sizes.left_margin + grid_sizes.plot_width, y:grid_sizes.top_margin + grid_sizes.plot_height}

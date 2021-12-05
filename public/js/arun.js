@@ -1,11 +1,11 @@
 
-let width = 450 ;
-let height = 300;
+let width = $('#mapvis').width();
+let height = $('#mapvis').height();
 let fill = d3.scaleLog().range(['white', 'darkblue']);
 let svg = d3.select("#mapvis")
     .append('svg')
-    .attr('width', width)
-    .attr('height', height);
+    .attr('width', width+180)
+    .attr('height', height+100);
 let g = svg.append('g');
 
 let new_data = {};
@@ -87,17 +87,17 @@ $.ajax({
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
 
-            let Tooltip = d3.select("#mapvis")
-            .append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 1)
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px")
-            .style('display','inline')
-            .style('position','fixed')
+            // let Tooltip = d3.select("#mapvis")
+            // .append("div")
+            // .attr("class", "tooltip")
+            // .style("opacity", 1)
+            // .style("background-color", "white")
+            // .style("border", "solid")
+            // .style("border-width", "2px")
+            // .style("border-radius", "5px")
+            // .style("padding", "5px")
+            // .style('display','inline')
+            // .style('position','fixed')
             
             nc = topojson.feature(map, map.objects.countries);
             let projection = d3.geoMercator()
@@ -170,14 +170,15 @@ $.ajax({
                     .attr('transform', event.transform);
         });
 
-        svg.call(zoom);
+        svg.call(zoom)
+            // .attr("transform","translate(100,50)scale(1.5,1)");
     }
     
         
 })
 
 
-
+piedata();
 function piedata(value) {
     $.ajax({
         method: 'post',
@@ -216,8 +217,8 @@ function piechart(ndata) {
 
     if(ndata.length>0){
     let data=[];
-    let width = 200;
-    let height = 100;
+    let width = $('#pievis').width();
+    let height = $('#pievis').height();
     let svg = d3.select('#pievis')
     .append('svg')
     .attr('width', width)
@@ -233,7 +234,7 @@ function piechart(ndata) {
       .sort(null);
     var arc = d3.arc()
         .innerRadius(0)
-        .outerRadius(radius);
+        .outerRadius(radius-50);
 
    
     //Generate groups
