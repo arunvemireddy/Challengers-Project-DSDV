@@ -1,4 +1,6 @@
-
+barChart();
+function barChart(){
+document.getElementById("barchart-grid").innerHTML = "";
 let grid_width = 750
 let grid_height = 650
 let grid_sizes = {left_margin: (grid_width/3)/5, plot_width: (grid_width/3)*(4/5), plot_height: (grid_height/3)*(3/5), top_margin: (grid_height/3)/5, bottom_margin: (grid_height/3)/5}
@@ -15,10 +17,10 @@ let grid = [grid1, grid2, grid3, grid4, grid5, grid6, grid7, grid8, grid9]
 
 console.log('working')
 let gridSVG = d3.select('#barchart-grid').append('svg').attr('width', grid_width).attr('height', grid_height)
-let genres_to_display = 8;
-let type = 'Movie'
-let country = 'United States';
 
+let type = 'Movie'    
+let country = document.getElementById('country').value;
+    
 $.ajax({
     method: 'post',
     url: '/getBarData',
@@ -140,7 +142,7 @@ $.ajax({
         // legend.append('text').text(d => d.replace('-', ' ')).attr('x', 15).attr('y',  20)
     }
 })
-
+}
 function getMaxCount(data) {
     let maximum = 0;
     let value;
@@ -156,6 +158,7 @@ function getMaxCount(data) {
 }
 
 function getGenres(genre_array) {
+    let genres_to_display = 8;
     let new_array = [];
     for(let i = 0; i < genres_to_display; i++) {
         new_array.push(genre_array[i][0]);

@@ -1,6 +1,6 @@
 
-let width = 1400;
-let height = 500;
+let width = 450 ;
+let height = 300;
 let fill = d3.scaleLog().range(['white', 'darkblue']);
 let svg = d3.select("#mapvis")
     .append('svg')
@@ -21,7 +21,7 @@ $.ajax({
                 data[i].country = 'united states of america';
             }
            if(data[i].country.includes(",")){
-               console.log(data[i].country);
+            //    console.log(data[i].country);
                let val = data[i].country.split(",");
                for(let i=0;i<val.length;i++){
                 if (val[i].country == 'United States') {
@@ -41,7 +41,7 @@ $.ajax({
                 data[i].country = 'united states of america';
             }
            if(data[i].country.includes(",")){
-               console.log(data[i].country);
+              // console.log(data[i].country);
                let val = data[i].country.split(",");
                for(let i=0;i<val.length;i++){
                 if (val[i].country == 'United States') {
@@ -67,7 +67,7 @@ $.ajax({
            }
         }
 
-        console.log(new_map);
+       // console.log(new_map);
         let mdata=[];
         let item={};
         new_map.forEach((val,key)=>{
@@ -77,7 +77,7 @@ $.ajax({
             item=[];
 
         })
-        console.log(mdata)
+        //console.log(mdata)
         var colorScale = d3.scaleThreshold()
                            .domain([d3.min(mdata,d=>d.value),d3.max(mdata,d=>d.value)])
                            // .domain([-110,1000])
@@ -137,12 +137,13 @@ $.ajax({
                                 return 'rgb(52, 235, 229)';
                             });
                             d3.select(this).style('fill', 'orange').attr('class', 'countryClass');
-                            console.log(this.style.fill);
+                            //console.log(this.style.fill);
                         }
                     
                         document.getElementById('country').value = e.target.__data__.properties.name;
 
                         if(this.style.fill=='orange'){
+                            barChart();
                             piedata(e.target.__data__.properties.name);
                             //Linechart();
                             $('input[id=radi]').prop('checked', true);
@@ -150,16 +151,16 @@ $.ajax({
                             alert('please select colored countries');
                         }
                     })
-                    .on('mousemove',function(e,d){
-                       // d3.select(this).style('fill','black')
-                        Tooltip.html(e.target.__data__.properties.name)
-                        .style("left", (d3.pointer(e)[0]+40) + "px")
-                        .style("top",  (d3.pointer(e)[1]) + "px")
-                        .style('opacity',1);
-                    })
-                    .on('mouseleave',function(e,d){
-                        Tooltip.style('opacity',0)
-                     })
+                    // .on('mousemove',function(e,d){
+                    //    // d3.select(this).style('fill','black')
+                    //     Tooltip.html(e.target.__data__.properties.name)
+                    //     .style("left", (d3.pointer(e)[0]+40) + "px")
+                    //     .style("top",  (d3.pointer(e)[1]) + "px")
+                    //     .style('opacity',1);
+                    // })
+                    // .on('mouseleave',function(e,d){
+                    //     Tooltip.style('opacity',0)
+                    //  })
             })
         })
         var zoom = d3.zoom()
@@ -215,15 +216,15 @@ function piechart(ndata) {
 
     if(ndata.length>0){
     let data=[];
-    let width = 400;
-    let height = 200;
+    let width = 200;
+    let height = 100;
     let svg = d3.select('#pievis')
     .append('svg')
     .attr('width', width)
     .attr('height', height+300);
     radius = Math.min(width, height) / 2;
     let g = svg.append('g')
-    .attr('transform', 'translate(' + width / 2 + "," + height / 2 + ")");
+    .attr('transform', 'translate(' + (width-20) / 2 + "," + (height+70) / 2 + ")");
     var color = d3.scaleOrdinal(d3.schemeCategory10);
     var pie = d3.pie()
       .value(function(d) {
@@ -275,8 +276,8 @@ function Linechart(){
     let xLabel = 'Year';
     let yLabel = 'No of Titles';
     let margin = {top:20,right:20,left:45,bottom:30};
-    let width = 500-margin.top-margin.bottom;
-    let height = 500-margin.left-margin.right;
+    let width = 400-margin.top-margin.bottom;
+    let height = 400-margin.left-margin.right;
     let svg = d3.select('#linechart')
                 .append('svg')
                 .attr('width',width+margin.left+margin.right)
@@ -292,8 +293,8 @@ function Linechart(){
         url: '/getCountries',
         success: function (data) {
             data.sort((a, b) => new Date(a.date_added) - new Date(b.date_added));
-            console.log("line chart");
-            console.log(data);
+            //console.log("line chart");
+            //console.log(data);
             let line_map = new Map();
             let type_line_map 
             for(let i=0;i<data.length;i++){
@@ -326,7 +327,7 @@ function Linechart(){
                 }
             }
 
-            console.log(line_map)
+            //console.log(line_map)
                 let item={};
                 let line_data=[];
                 line_map.forEach((val,key)=>{
@@ -339,7 +340,7 @@ function Linechart(){
                     item={};
                 })
                 line_data.sort((a, b) => new Date(a.key) - new Date(b.key));
-                console.log(line_data);
+                //console.log(line_data);
                 xScale.domain([d3.min(line_data,d=>d.key),d3.max(line_data,d=>d.key)]);
                 yScale.domain([d3.min(line_data,d=>d.value),d3.max(line_data,d=>d.value)]);
                 

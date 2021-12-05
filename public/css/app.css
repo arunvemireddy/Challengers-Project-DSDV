@@ -2,11 +2,11 @@ h1{
     color: #2472b5;
 }
 
-#mapvis{
+/* #mapvis{
     width: 50%;
     float: left;
     
-}
+} */
 
 #pievis{
     width: 70%;
@@ -88,6 +88,6 @@ body,html{
 
 #linechart{
     margin: 0 auto;
-     width:50%;
-     padding-top:100px
+    width:50%;
+   
 }

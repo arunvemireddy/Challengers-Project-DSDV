@@ -58,6 +58,9 @@ app.get('/getCountries',(req,res)=>{
 
 app.post('/getBarData',(req,res)=>{
     let country = req.body.country;
+    if(country=='united states of america'){
+        country='United States';
+    }
     collection.find({country:{ $regex : new RegExp(country, "i")}},
         {projection:{_id:0, country:1, listed_in:1, type:1, rating:1}}).toArray(function(e,r){
         if(e) throw e;
