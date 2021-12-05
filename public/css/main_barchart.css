@@ -23,13 +23,15 @@ body {
 
 .xlabel {
     fill:black;
-    font-size: 18px;
+    font-size: 22px;
+    text-anchor: middle;
 }
 
 .ylabel {
     fill:black;
-    font-size: 18px;
+    font-size: 22px;
     transform: rotate(-90deg);
+    text-anchor: middle;
 }
 
 .tooltip {
@@ -39,4 +41,8 @@ body {
 .subplot-labels {
     text-anchor: middle;
     font-size: 18px;
+}
+
+.axis {
+    font-size: 9.5px;
 }

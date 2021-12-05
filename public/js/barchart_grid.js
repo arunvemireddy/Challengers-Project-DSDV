@@ -1,5 +1,4 @@
-
-let grid_width = 800
+let grid_width = 740
 let grid_height = 650
 let grid_sizes = {left_margin: (grid_width/3)*(3/10), plot_width: (grid_width/3)*(7/10), plot_height: (grid_height/3)*(13/20), top_margin: (grid_height/3)/5, bottom_margin: (grid_height/3)*(1/10)}
 let grid1 = {x:grid_sizes.left_margin, y:grid_sizes.top_margin + grid_sizes.plot_height}
@@ -12,13 +11,20 @@ let grid7 = {x:grid_sizes.left_margin, y:3*grid_sizes.top_margin + 3*grid_sizes.
 let grid8 = {x:2*grid_sizes.left_margin + grid_sizes.plot_width, y:3*grid_sizes.top_margin + 3*grid_sizes.plot_height + 2*grid_sizes.bottom_margin}
 let grid9 = {x:3*grid_sizes.left_margin + 2*grid_sizes.plot_width, y:3*grid_sizes.top_margin + 3*grid_sizes.plot_height + 2*grid_sizes.bottom_margin}
 let grid = [grid1, grid2, grid3, grid4, grid5, grid6, grid7, grid8, grid9]
-
-console.log('working')
-let gridSVG = d3.select('#barchart-grid').append('svg').attr('width', grid_width+20).attr('height', grid_height)
 let genres_to_display = 8;
-let type = 'Movie'
-let country = 'United States';
 
+barChart();
+function barChart(){
+document.getElementById("barchart-grid").innerHTML = "";
+let gridSVG = d3.select('#barchart-grid').append('svg').attr('width', grid_width + 10).attr('height', grid_height)
+
+let type = 'Movie'    
+let country = document.getElementById('country').value;
+if(country === '') {
+    country = null;
+}
+console.log(country)
+    
 $.ajax({
     method: 'post',
     url: '/getBarData',
@@ -60,13 +66,25 @@ $.ajax({
 
         let genre;
         let ratings_data = {};
+        let isOther = false;
+        let ratings_list = []
         data.forEach(d => {
+            if(!ratings_list.includes(d.rating)) {
+                ratings_list.push(d.rating)
+            }
+            if(d.rating === undefined) {
+                console.log('Undefined', d)
+            }
             if(d.type === type) {
                 d.listed_in.forEach(g => {
                     if (!top_genres_list.includes(g)) {
                         genre = 'Other';
+                        isOther = true;
                     } else {
                         genre = g;
+                    }
+                    if(d.rating === 'undefined') {
+                        console.log('Undefined', d)
                     }
                     if (ratings_data[d.rating] === undefined) {
                         ratings_data[d.rating] = {};
@@ -79,8 +97,11 @@ $.ajax({
                 })
             }
         })
-
-        console.log(ratings_data)
+        console.log(ratings_list)
+        if(isOther) {
+            top_genres_list.push('Other')
+        }
+        console.log('Ratings', ratings_data)
         let bar_data = [];
         Object.keys(ratings_data).forEach(g => {
             let rating_item = {};
@@ -103,6 +124,15 @@ $.ajax({
         y.domain(bar_data.map(r=>r.rating));
         x.domain([0, d3.max(bar_data, d => d.max)]);
 
+        let ylabel_row;
+        let xlabel_row;
+        if(top_genres_list.length < 4) {
+            xlabel_row = 0;
+        } else if(top_genres_list.length < 7) {
+            xlabel_row = 3;
+        } else {
+            xlabel_row = 6;
+        }
         for(let i = 0; i < top_genres_list.length; i++) {
             let vert_spacing;
             if(i < 3) {
@@ -121,21 +151,20 @@ $.ajax({
             y.range([grid_sizes.top_margin, grid[0].y])
             let xAxis = d3.axisBottom(x);
             let yAxis = d3.axisLeft(y);
-            let xAxisTicks = x.ticks().filter(tick => Number.isInteger(tick))
-            xAxis.tickValues(xAxisTicks).tickFormat(d3.format('d'))
+            let xAxisTicks = x.ticks(5).filter(tick => Number.isInteger(tick))
+            xAxis
+                .tickValues(xAxisTicks)
+                .tickFormat(d3.format('d'))
             gridSVG.append('text').attr('transform', 'translate(' + (grid[i].x + .5 * grid_sizes.plot_width) + ', ' + (grid[i].y - grid_sizes.plot_height - 10) + ')').attr('class', 'subplot-labels').text(top_genres_list[i])
             gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + 0 + ', ' + grid[i].y + ')').call(xAxis);
-            //svg.append('text').attr('x', (width-margin.right)/2).attr('y', height).attr('class', 'xlabel').text('Rating')
             gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
-            //svg.append('text').attr('x', 0-(height/2)).attr('y', margin.left/2).attr('class', 'ylabel').text('Number of Titles')
             let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
                 d=>'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
             bars.append('rect').attr('width', d=> (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
-            if(i===3) {
-                gridSVG.append('text').attr('x', 0-grid_height/2).attr('y', grid_sizes.left_margin/4).attr('class', 'ylabel').text('R A T I N G')
-            }
         }
-        gridSVG.append('text').attr('x', grid_width/2).attr('y', grid_height).attr('class', 'xlabel').text('NUMBER OF TITLES')
+        console.log(xlabel_row, grid_sizes.plot_height)
+        gridSVG.append('text').attr('x', 0-(grid[xlabel_row].y/2 + grid_sizes.bottom_margin)).attr('y', grid_sizes.left_margin/4).attr('class', 'ylabel').text('R A T I N G')
+        gridSVG.append('text').attr('x', (grid_width + grid_sizes.left_margin)/2).attr('y', grid[xlabel_row].y + grid_sizes.top_margin).attr('class', 'xlabel').text('NUMBER OF TITLES')
 
         // let legend = svg.selectAll('.legend').data(color.domain()).enter().append('g').attr('class', 'legend')
         //     .attr('transform', (d, i) => 'translate(' + (width - margin.right) + ', ' + 15 * i + ')');
@@ -144,7 +173,7 @@ $.ajax({
         // legend.append('text').text(d => d.replace('-', ' ')).attr('x', 15).attr('y',  20)
     }
 })
-
+}
 function getMaxCount(data) {
     let maximum = 0;
     let value;
@@ -160,10 +189,16 @@ function getMaxCount(data) {
 }
 
 function getGenres(genre_array) {
+    let num_genres;
+    if(genre_array.length < genres_to_display) {
+        num_genres = genre_array.length;
+    } else {
+        num_genres = genres_to_display
+    }
+    console.log(genre_array)
     let new_array = [];
-    for(let i = 0; i < genres_to_display; i++) {
+    for(let i = 0; i < num_genres; i++) {
         new_array.push(genre_array[i][0]);
     }
-    new_array.push('Other')
     return new_array;
 }
