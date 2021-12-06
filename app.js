@@ -87,7 +87,7 @@ app.post('/getCountryData',(req,res)=>{
         value='United States';
     }
     console.log(value)
-    collection.find({country:{ $regex : new RegExp(value, "i") }},{projection:{type:1}}).toArray(function(e,r){
+    collection.find({country:{ $regex : new RegExp(value, "i") }},{}).toArray(function(e,r){
       if(e) throw e;
       res.send(r);
     })

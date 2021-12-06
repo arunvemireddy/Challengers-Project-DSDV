@@ -145,7 +145,7 @@ $.ajax({
                         if(this.style.fill=='orange'){
                             barChart();
                             piedata(e.target.__data__.properties.name);
-                            //Linechart();
+                            Linechart();
                             $('input[id=radi]').prop('checked', true);
                         }else{
                             alert('please select colored countries');
@@ -274,11 +274,12 @@ Linechart();
 
 function Linechart(){
     document.getElementById('linechart').innerHTML="";
+    let value=document.getElementById('country').value;
     let xLabel = 'Year';
     let yLabel = 'No of Titles';
     let margin = {top:20,right:20,left:45,bottom:30};
-    let width = 400-margin.top-margin.bottom;
-    let height = 400-margin.left-margin.right;
+    let width = $('#linechart').width()-margin.top-margin.bottom;
+    let height = $('#linechart').height()-margin.left-margin.right;
     let svg = d3.select('#linechart')
                 .append('svg')
                 .attr('width',width+margin.left+margin.right)
@@ -290,104 +291,84 @@ function Linechart(){
     let yScale = d3.scaleLinear().range([height,0]);
 
     $.ajax({
-        method: 'get',
-        url: '/getCountries',
+        method: 'post',
+        url: '/getCountryData',
+        data: JSON.stringify({ 'country': value }),
+        dataType: 'json',
+        contentType: 'application/json',
         success: function (data) {
-            data.sort((a, b) => new Date(a.date_added) - new Date(b.date_added));
-            //console.log("line chart");
-            //console.log(data);
-            let line_map = new Map();
-            let type_line_map 
+            let ob = [];
             for(let i=0;i<data.length;i++){
-            
-                if(line_map.get(data[i].date_added)==undefined){
-                    let d = new Date(data[i].date_added);
-                    let x=d.getFullYear();
-                    if(line_map.get(x)==undefined){
-                        line_map.set(x,1);
+                data[i].date_added = new Date(data[i].date_added).getFullYear();
+                    if(ob[[data[i].date_added,data[i].type]]==undefined){
+                        ob[[data[i].date_added,data[i].type]]=1;
                     }else{
-                        let v = line_map.get(x);
-                        v=v+1;
-                        line_map.set(x,v);
+                        let val = ob[[data[i].date_added,data[i].type]];
+                        val = val+1;
+                        ob[[data[i].date_added,data[i].type]]=val;
                     }
-                }
             }
+            console.log('arun');
+            console.log(ob);
+             let item={};
+            let new_data=[];
+            Object.entries(ob).forEach(d=>{
+                let z=d[0].split(',');
+                item['year']=z[0];
+                item['type']=z[1];
+                item['count']=d[1];
+                new_data.push(item);
+                item={};
+            })
 
-            for(let i=0;i<data.length;i++){
-            
-                if(line_map.get(data[i].date_added)==undefined){
-                    let d = new Date(data[i].date_added);
-                    let x=d.getFullYear();
-                    if(line_map.get(x)==undefined){
-                        line_map.set(x,1);
-                    }else{
-                        let v = line_map.get(x);
-                        v=v+1;
-                        line_map.set(x,v);
-                    }
-                }
-            }
+         
+            new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
+            xScale.domain([2007,2020]);
+            yScale.domain([d3.min(new_data,d=>d.count),d3.max(new_data,d=>d.count)]);
+            let xAxis = d3.axisBottom(xScale); ;
+            let yAxis = d3.axisLeft(yScale);
+            let  dataNest = Array.from(
+                d3.group(new_data, d => d.type), ([key, value]) => ({key, value})
+              );
+            let countline = d3.line().x(function(d) { return xScale(d.year); }).y(function(d) { return yScale(d.count); });
+        
 
-            //console.log(line_map)
-                let item={};
-                let line_data=[];
-                line_map.forEach((val,key)=>{
-                    item['value']=val;
-                    item['key']=key;
-                    
-                    if(!isNaN(item['key'])){
-                        line_data.push(item);
-                    }
-                    item={};
-                })
-                line_data.sort((a, b) => new Date(a.key) - new Date(b.key));
-                //console.log(line_data);
-                xScale.domain([d3.min(line_data,d=>d.key),d3.max(line_data,d=>d.key)]);
-                yScale.domain([d3.min(line_data,d=>d.value),d3.max(line_data,d=>d.value)]);
-                
-                let xAxis = d3.axisBottom(xScale); ;
-                let yAxis = d3.axisLeft(yScale);
+            svg.append('g')
+                .attr("transform","translate(0,"+height+")")
+                .call(xAxis).attr('class','xAxisLine')
+                .append('text')
+                .attr('class','label')
+                .attr('x',width-margin.left-margin.right)
+                .attr('y',-6)
+                .text(xLabel).attr('class','texLabel');
 
-                svg.append('g')
-                    .attr("transform","translate(0,"+height+")")
-                    .call(xAxis).attr('class','xAxisLine')
-                    .append('text')
-                    .attr('class','label')
-                    .attr('x',width-margin.left-margin.right)
-                    .attr('y',-6)
-                    .text(xLabel).attr('class','texLabel');
-
-                svg.append('g')
-                    .call(yAxis)
-                    .attr('class','yAxisLine')
-                    .append('text')
-                    .attr('class','label')
-                    .attr('transform','rotate(-90)')
-                    .attr('y',15).text(yLabel).attr('class','texLabel');
+            svg.append('g')
+                .call(yAxis)
+                .attr('class','yAxisLine')
+                .append('text')
+                .attr('class','label')
+                .attr('transform','rotate(-90)')
+                .attr('y',15).text(yLabel).attr('class','texLabel');
 
                     
-
+                dataNest.forEach(function(d,i) { 
                 svg.append('path')
                     .attr('fill','none')
-                    .datum(line_data)
-                    .attr('stroke','black')
+                    .attr('stroke',function(){
+                         
+                        if(d.key=='TV Show'){
+                            return 'orange';
+                        }else{
+                            return 'steelblue';
+                        }
+                        return 'black';
+                    })
                     .attr("stroke-width", 1.5)
-                    .attr('d',d3.line().x(d=>xScale(d.key)).y(d=>yScale(d.value)))
+                    .attr('d',countline(d.value))
+                    
+                });
                 
-                    svg.append('path')
-                    .attr('fill','none')
-                    .datum(line_data)
-                    .attr('stroke','black')
-                    .attr("stroke-width", 1.5)
-                    .attr('d',d3.line().x(d=>xScale(d.key)).y(d=>yScale(d.value)))
-                    //.attr('class','pathLine')
-                    // .on('mouseenter',(e,d)=>{
-                    //   d3.select(e.target).style('stroke','red').attr('class','patClas')
-                    // }).on('mouseleave',(e,d)=>{
-                    // d3.select(e.target).style('stroke','green').attr('class','patClas')
-                    // });
-
-                    }
+                }
                 })
 }
 
