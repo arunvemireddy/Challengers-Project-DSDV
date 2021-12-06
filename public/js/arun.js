@@ -87,17 +87,17 @@ $.ajax({
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
 
-            let Tooltip = d3.select("#mapvis")
-            .append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 1)
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px")
-            .style('display','inline')
-            .style('position','fixed')
+            // let Tooltip = d3.select("#mapvis")
+            // .append("div")
+            // .attr("class", "tooltip")
+            // .style("opacity", 1)
+            // .style("background-color", "white")
+            // .style("border", "solid")
+            // .style("border-width", "2px")
+            // .style("border-radius", "5px")
+            // .style("padding", "5px")
+            // .style('display','inline')
+            // .style('position','fixed')
             
             nc = topojson.feature(map, map.objects.countries);
             let projection = d3.geoMercator()
@@ -151,16 +151,16 @@ $.ajax({
                             alert('please select colored countries');
                         }
                     })
-                    .on('mousemove',function(e,d){
-                       // d3.select(this).style('fill','black')
-                        Tooltip.html(e.target.__data__.properties.name)
-                        .style("left", (d3.pointer(e)[0]+40) + "px")
-                        .style("top",  (d3.pointer(e)[1]) + "px")
-                        .style('opacity',1);
-                    })
-                    .on('mouseleave',function(e,d){
-                        Tooltip.style('opacity',0)
-                     })
+                    // .on('mousemove',function(e,d){
+                    //    // d3.select(this).style('fill','black')
+                    //     Tooltip.html(e.target.__data__.properties.name)
+                    //     .style("left", (d3.pointer(e)[0]+40) + "px")
+                    //     .style("top",  (d3.pointer(e)[1]) + "px")
+                    //     .style('opacity',1);
+                    // })
+                    // .on('mouseleave',function(e,d){
+                    //     Tooltip.style('opacity',0)
+                    //  })
             })
         })
         var zoom = d3.zoom()
@@ -200,6 +200,7 @@ function piedata(value) {
             let newData=[];
             let item={};
             document.getElementById('pievis').innerHTML = '';
+            
             map.forEach((val,key)=>{
                 item['value']= parseInt(val);
                 item['key']=key;
@@ -214,7 +215,7 @@ function piedata(value) {
 
 //pie chart
 function piechart(ndata) {
-
+    console.log(ndata);
     if(ndata.length>0){
     let data=[];
     let width = $('#pievis').width();
@@ -282,7 +283,7 @@ function Linechart(){
     let height = $('#linechart').height()-margin.left-margin.right;
     let svg = d3.select('#linechart')
                 .append('svg')
-                .attr('width',width+margin.left+margin.right)
+                .attr('width',width-margin.left-margin.right)
                 .attr('height',height+margin.top+margin.bottom)
                 .append('g')
                 .attr('transform',"translate("+margin.left+" "+margin.top+")");
@@ -299,7 +300,11 @@ function Linechart(){
         success: function (data) {
             let ob = [];
             for(let i=0;i<data.length;i++){
+                
                 data[i].date_added = new Date(data[i].date_added).getFullYear();
+
+                if(!isNaN(data[i].date_added)){
+            
                     if(ob[[data[i].date_added,data[i].type]]==undefined){
                         ob[[data[i].date_added,data[i].type]]=1;
                     }else{
@@ -307,8 +312,9 @@ function Linechart(){
                         val = val+1;
                         ob[[data[i].date_added,data[i].type]]=val;
                     }
+                }
             }
-            console.log('arun');
+        
             console.log(ob);
              let item={};
             let new_data=[];
@@ -320,7 +326,8 @@ function Linechart(){
                 new_data.push(item);
                 item={};
             })
-
+            let color = d3.scaleOrdinal().range(['orange','steelblue']);
+           
          
             new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
             xScale.domain([2010,2020]);
@@ -338,9 +345,10 @@ function Linechart(){
                 .call(xAxis).attr('class','xAxisLine')
                 .append('text')
                 .attr('class','label')
-                .attr('x',width-margin.left-margin.right)
-                .attr('y',-6)
-                .text(xLabel).attr('class','texLabel');
+                .attr('x',width-200)
+                .attr('y',10)
+                .text(xLabel)
+                .attr('class','texLabel');
 
             svg.append('g')
                 .call(yAxis)
@@ -348,26 +356,28 @@ function Linechart(){
                 .append('text')
                 .attr('class','label')
                 .attr('transform','rotate(-90)')
-                .attr('y',15).text(yLabel).attr('class','texLabel');
+                .attr('y',15)
+                .text(yLabel)
+                .attr('class','texLabel');
 
                     
                 dataNest.forEach(function(d,i) { 
                 svg.append('path')
                     .attr('fill','none')
                     .attr('stroke',function(){
-                         
-                        if(d.key=='TV Show'){
-                            return 'orange';
-                        }else{
-                            return 'steelblue';
-                        }
-                        return 'black';
+                        return color(d.key)
                     })
                     .attr("stroke-width", 1.5)
                     .attr('d',countline(d.value))
                     
                 });
-                
+                let legend= svg.selectAll(".legend")
+                                .data(color.domain())
+                                .enter().append('g')
+                                .attr('class','legend');
+                legend.attr('transform',(d,i)=>'translate('+30+','+15*i+')');
+                legend.append("rect").attr('width',10).attr('height',10).style('fill',d=>color(d)).attr('class',d=>d);
+                legend.append('text').text(d=>d).attr('x',15).attr('y',10).style('fill','black');
                 }
                 })
 }
