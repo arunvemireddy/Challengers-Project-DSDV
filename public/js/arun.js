@@ -323,7 +323,7 @@ function Linechart(){
 
          
             new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
-            xScale.domain([2007,2020]);
+            xScale.domain([2010,2020]);
             yScale.domain([d3.min(new_data,d=>d.count),d3.max(new_data,d=>d.count)]);
             let xAxis = d3.axisBottom(xScale); ;
             let yAxis = d3.axisLeft(yScale);
