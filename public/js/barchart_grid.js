@@ -160,8 +160,8 @@ $.ajax({
             let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
                 d=>'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
                 .on('mouseenter', e => {
-                    
-                }
+
+                })
             bars.append('rect').attr('width', d=> (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
         }
         console.log(xlabel_row, grid_sizes.plot_height)
