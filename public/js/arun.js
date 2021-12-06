@@ -87,17 +87,17 @@ $.ajax({
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
 
-            // let Tooltip = d3.select("#mapvis")
-            // .append("div")
-            // .attr("class", "tooltip")
-            // .style("opacity", 1)
-            // .style("background-color", "white")
-            // .style("border", "solid")
-            // .style("border-width", "2px")
-            // .style("border-radius", "5px")
-            // .style("padding", "5px")
-            // .style('display','inline')
-            // .style('position','fixed')
+            let Tooltip = d3.select("#mapvis")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 1)
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+            .style('display','inline')
+            .style('position','fixed')
             
             nc = topojson.feature(map, map.objects.countries);
             let projection = d3.geoMercator()
@@ -151,16 +151,16 @@ $.ajax({
                             alert('please select colored countries');
                         }
                     })
-                    // .on('mousemove',function(e,d){
-                    //    // d3.select(this).style('fill','black')
-                    //     Tooltip.html(e.target.__data__.properties.name)
-                    //     .style("left", (d3.pointer(e)[0]+40) + "px")
-                    //     .style("top",  (d3.pointer(e)[1]) + "px")
-                    //     .style('opacity',1);
-                    // })
-                    // .on('mouseleave',function(e,d){
-                    //     Tooltip.style('opacity',0)
-                    //  })
+                    .on('mousemove',function(e,d){
+                       // d3.select(this).style('fill','black')
+                        Tooltip.html(e.target.__data__.properties.name)
+                        .style("left", (d3.pointer(e)[0]+40) + "px")
+                        .style("top",  (d3.pointer(e)[1]) + "px")
+                        .style('opacity',1);
+                    })
+                    .on('mouseleave',function(e,d){
+                        Tooltip.style('opacity',0)
+                     })
             })
         })
         var zoom = d3.zoom()
