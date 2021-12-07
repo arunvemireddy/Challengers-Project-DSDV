@@ -352,6 +352,8 @@ function Linechart(){
     let xScale = d3.scaleTime().range([0,width]);
     let yScale = d3.scaleLinear().range([height,0]);
 
+    svg.append('text').text('Ratings').attr('fill','black').attr('x',(width/2)-100).attr('y',10);
+
     $.ajax({
         method: 'post',
         url: '/getCountryData',
@@ -360,22 +362,43 @@ function Linechart(){
         contentType: 'application/json',
         success: function (data) {
             let ob = [];
-            for(let i=0;i<data.length;i++){
+            let ty='rating';
+            let movieortv ='TV Show';
+            // for(let i=0;i<data.length;i++){
                 
-                data[i].date_added = new Date(data[i].date_added).getFullYear();
+            //     data[i].date_added = new Date(data[i].date_added).getFullYear();
 
-                if(!isNaN(data[i].date_added)){
-            
-                    if(ob[[data[i].date_added,data[i].type]]==undefined){
-                        ob[[data[i].date_added,data[i].type]]=1;
-                    }else{
-                        let val = ob[[data[i].date_added,data[i].type]];
-                        val = val+1;
-                        ob[[data[i].date_added,data[i].type]]=val;
+            //     if(!isNaN(data[i].date_added)){
+            //         if(movieortv==data[i].type){
+            //         if(ob[[data[i].date_added,data[i].type]]==undefined){
+            //             ob[[data[i].date_added,data[i].type]]=1;
+            //         }else{
+            //             let val = ob[[data[i].date_added,data[i].type]];
+            //             val = val+1;
+            //             ob[[data[i].date_added,data[i].type]]=val;
+            //         }
+            //     }
+            //     }
+            //  }
+
+             
+                for(let i=0;i<data.length;i++){
+                    
+                    data[i].date_added = new Date(data[i].date_added).getFullYear();
+                    if(!isNaN(data[i].date_added)){
+                        if(movieortv==data[i].type){
+                        if(ob[[data[i].date_added,data[i].rating]]==undefined){
+                            ob[[data[i].date_added,data[i].rating]]=1;
+                        }else{
+                            let val = ob[[data[i].date_added,data[i].rating]];
+                            val = val+1;
+                            ob[[data[i].date_added,data[i].rating]]=val;
+                        }
                     }
                 }
-            }
-        
+                 }
+
+            
             console.log(ob);
              let item={};
             let new_data=[];
@@ -387,7 +410,8 @@ function Linechart(){
                 new_data.push(item);
                 item={};
             })
-            let color = d3.scaleOrdinal().range(['orange','steelblue']);
+            let color = d3.scaleOrdinal().range(['rgb(255,0,0)','green','yellow','white','black','brown','orange','blue','steelblue',
+            'rgb(168, 50, 168)','rgb(0, 255, 242)','rgb(119, 0, 255)','rgb(81, 255, 0)','rgb(255, 0, 136)']);
            
          
             new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
@@ -428,7 +452,7 @@ function Linechart(){
                     .attr('stroke',function(){
                         return color(d.key)
                     })
-                    .attr("stroke-width", 1.5)
+                    .attr("stroke-width", 3.5)
                     .attr('d',countline(d.value))
                     
                 });
@@ -441,6 +465,10 @@ function Linechart(){
                 legend.append('text').text(d=>d).attr('x',15).attr('y',10).style('fill','black');
                 }
                 })
+
+            
+
+
 }
 
 
