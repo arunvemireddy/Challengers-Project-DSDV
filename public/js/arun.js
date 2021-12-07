@@ -10,6 +10,7 @@ let g = svg.append('g');
 
 let new_data = {};
 let countries_data = [];
+let select_type;
 
 
 $.ajax({
@@ -212,7 +213,6 @@ function piedata(value) {
                  item=[];
             })
             piechart(newData);
-            
         }
     })
 }
@@ -222,63 +222,67 @@ function piechart(ndata) {
     console.log(ndata);
     if(ndata.length>0){
     let data=[];
+    let pie_margin ={top:20,right:20,left:45,bottom:30};
+    let pie_width = $('#pievis').width()-pie_margin.left-pie_margin.right;
+    let pie_height = $('#pievis').height()-pie_margin.top-pie_margin.bottom;
+    let pie_svg = d3.select('#pievis')
+                    .append('svg')
+                    .attr('width', pie_width+pie_margin.left+pie_margin.right)
+                    .attr('height', pie_height+pie_margin.top+pie_margin.bottom)
+                    .append('g').attr("transform","translate(" + pie_margin.left + " , " + pie_margin.top + ")");;
 
-    let width = $('#pievis').width();
-    let height = $('#pievis').height();
-    let svg = d3.select('#pievis')
-                .append('svg')
-                .attr('width', width-30)
-                .attr('height', height);
-
-    // radius = Math.min(width, height) / 2;
-    // let g = svg.append('g')
-    //             .attr('transform', 'translate(' + (width-20) / 2 + "," + (height+70) / 2 + ")");
-    
     let xLabel = 'Type';
     let yLabel = 'Total Shows';
 
     var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-    let xScale = d3.scaleBand().range([0,width]);
-    let yScale = d3.scaleLinear().range([height,0]);
+    let xScale = d3.scaleBand().range([0,pie_width]);
+    let yScale = d3.scaleLinear().range([pie_height,0]);
 
     
     xScale.domain(ndata.map(d=>d.key));
-    yScale.domain([d3.min(ndata,d=>d.value),d3.max(ndata,d=>d.value)]);
+    yScale.domain([0,d3.max(ndata,d=>d.value)]);
 
     let xAxis= d3.axisBottom(xScale);
     let yAxis=d3.axisLeft(yScale);
-    let h = height -50;
-    svg.append('g')
-        .attr("transform","translate("+20+","+h+")")
+
+    pie_svg.append('g')
+        .attr("transform","translate("+0+","+(pie_height)+")")
         .attr('id','xAxis')
         .call(xAxis)
-        .attr('fill','red')
+     
         .append('text')
         .attr('class','label')
         .attr('id','xtextValue')
-        .attr('x',width-20)
-        .attr('y',20)
+        .attr('x',pie_width)
+        .attr('y',0)
         .text(xLabel);
 
-        svg.append('g')
-        .attr("transform", "translate (" + 40 + " 0)")
+    pie_svg.append('g')
         .call(yAxis)
-        .attr('fill','red')
         .append('text')
         .attr('class','label')
         .attr('transform','rotate(-90)')
         .attr('y',15).text(yLabel);
 
 
-        svg.selectAll('rect')
+    pie_svg.selectAll('rect')
         .data(ndata).enter()
         .append('rect')
+        .attr('class','rectangle')
         .attr('fill','black')
-        .attr('x',d=>xScale(d.key))
+        .attr('x',d=>xScale(d.key)+40)
         .attr('y',d=>yScale(d.value))
-        .attr('width',xScale.bandwidth()-60)
-        .attr("height",d=>h-yScale(d.value));
+        .attr('width',xScale.bandwidth()-80)
+        .attr("height",d=>pie_height-yScale(d.value))
+        .on('click',function(e,i){
+            d3.selectAll('.rectangle').attr('fill','black');
+            d3.select(this).attr('fill','red');
+            select_type=i.key;
+            //console.log(select_type);
+            Linechart();
+        });
+
         // .attr('class','rectClass')
         // .attr('width',xScale.bandwidth())
         // .attr("height",d=>yScale(d.value))
@@ -363,30 +367,25 @@ function Linechart(){
         success: function (data) {
             let ob = [];
             let ty='rating';
-            let movieortv ='Movie';
-            // for(let i=0;i<data.length;i++){
-                
-            //     data[i].date_added = new Date(data[i].date_added).getFullYear();
-
-            //     if(!isNaN(data[i].date_added)){
-            //         if(movieortv==data[i].type){
-            //         if(ob[[data[i].date_added,data[i].type]]==undefined){
-            //             ob[[data[i].date_added,data[i].type]]=1;
-            //         }else{
-            //             let val = ob[[data[i].date_added,data[i].type]];
-            //             val = val+1;
-            //             ob[[data[i].date_added,data[i].type]]=val;
-            //         }
-            //     }
-            //     }
-            //  }
-
-             
+            let movieortv =select_type;
+            console.log('movieortv');
+            console.log(movieortv);
+       
                 for(let i=0;i<data.length;i++){
                     
                     data[i].date_added = new Date(data[i].date_added).getFullYear();
                     if(!isNaN(data[i].date_added)){
                         if(movieortv==data[i].type){
+                        if(ob[[data[i].date_added,data[i].rating]]==undefined){
+                            ob[[data[i].date_added,data[i].rating]]=1;
+                        }else{
+                            let val = ob[[data[i].date_added,data[i].rating]];
+                            val = val+1;
+                            ob[[data[i].date_added,data[i].rating]]=val;
+                        }
+                    }
+
+                    if(movieortv==undefined){
                         if(ob[[data[i].date_added,data[i].rating]]==undefined){
                             ob[[data[i].date_added,data[i].rating]]=1;
                         }else{
@@ -465,10 +464,6 @@ function Linechart(){
                 legend.append('text').text(d=>d).attr('x',15).attr('y',10).style('fill','black');
                 }
                 })
-
-            
-
-
 }
 
 
