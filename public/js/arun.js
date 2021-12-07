@@ -87,17 +87,17 @@ $.ajax({
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
 
-            // let Tooltip = d3.select("#mapvis")
-            // .append("div")
-            // .attr("class", "tooltip")
-            // .style("opacity", 1)
-            // .style("background-color", "white")
-            // .style("border", "solid")
-            // .style("border-width", "2px")
-            // .style("border-radius", "5px")
-            // .style("padding", "5px")
-            // .style('display','inline')
-            // .style('position','fixed')
+            let Tooltip = d3.select("#mapvis")
+            .append("span")
+            .attr("class", "tooltip")
+            .style("opacity", 1)
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+            .style('display','inline')
+            .style('position','absolute')
             
             nc = topojson.feature(map, map.objects.countries);
             let projection = d3.geoMercator()
@@ -151,16 +151,20 @@ $.ajax({
                             alert('please select colored countries');
                         }
                     })
-                    // .on('mousemove',function(e,d){
-                    //    // d3.select(this).style('fill','black')
-                    //     Tooltip.html(e.target.__data__.properties.name)
-                    //     .style("left", (d3.pointer(e)[0]+40) + "px")
-                    //     .style("top",  (d3.pointer(e)[1]) + "px")
-                    //     .style('opacity',1);
-                    // })
-                    // .on('mouseleave',function(e,d){
-                    //     Tooltip.style('opacity',0)
-                    //  })
+                    .on('mouseover',function(e,d){
+                        d3.select(this).style('cursor','pointer');
+                    })
+                    .on('mousemove',function(e,d){
+                       // d3.select(this).style('fill','black')
+                      //  document.getElementById('country').value=e.target.__data__.properties.name;
+                        // Tooltip.html(e.target.__data__.properties.name)
+                        // .style("left", (d3.pointer(e)[0]+40) + "px")
+                        // .style("top",  (d3.pointer(e)[1]) + "px")
+                        // .style('opacity',1);
+                    })
+                    .on('mouseleave',function(e,d){
+                        Tooltip.style('opacity',0)
+                     })
             })
         })
         var zoom = d3.zoom()
@@ -218,56 +222,113 @@ function piechart(ndata) {
     console.log(ndata);
     if(ndata.length>0){
     let data=[];
+
     let width = $('#pievis').width();
     let height = $('#pievis').height();
     let svg = d3.select('#pievis')
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height+300);
-    radius = Math.min(width, height) / 2;
-    let g = svg.append('g')
-    .attr('transform', 'translate(' + (width-20) / 2 + "," + (height+70) / 2 + ")");
+                .append('svg')
+                .attr('width', width-30)
+                .attr('height', height);
+
+    // radius = Math.min(width, height) / 2;
+    // let g = svg.append('g')
+    //             .attr('transform', 'translate(' + (width-20) / 2 + "," + (height+70) / 2 + ")");
+    
+    let xLabel = 'Type';
+    let yLabel = 'Total Shows';
+
     var color = d3.scaleOrdinal(d3.schemeCategory10);
-    var pie = d3.pie()
-      .value(function(d) {
-        return d.value;
-      })
-      .sort(null);
-    var arc = d3.arc()
-        .innerRadius(0)
-        .outerRadius(radius-50);
+
+    let xScale = d3.scaleBand().range([0,width]);
+    let yScale = d3.scaleLinear().range([height,0]);
+
+    
+    xScale.domain(ndata.map(d=>d.key));
+    yScale.domain([d3.min(ndata,d=>d.value),d3.max(ndata,d=>d.value)]);
+
+    let xAxis= d3.axisBottom(xScale);
+    let yAxis=d3.axisLeft(yScale);
+    let h = height -50;
+    svg.append('g')
+        .attr("transform","translate("+20+","+h+")")
+        .attr('id','xAxis')
+        .call(xAxis)
+        .attr('fill','red')
+        .append('text')
+        .attr('class','label')
+        .attr('id','xtextValue')
+        .attr('x',width-20)
+        .attr('y',20)
+        .text(xLabel);
+
+        svg.append('g')
+        .attr("transform", "translate (" + 40 + " 0)")
+        .call(yAxis)
+        .attr('fill','red')
+        .append('text')
+        .attr('class','label')
+        .attr('transform','rotate(-90)')
+        .attr('y',15).text(yLabel);
+
+
+        svg.selectAll('rect')
+        .data(ndata).enter()
+        .append('rect')
+        .attr('fill','black')
+        .attr('x',d=>xScale(d.key))
+        .attr('y',d=>yScale(d.value))
+        .attr('width',xScale.bandwidth()-60)
+        .attr("height",d=>h-yScale(d.value));
+        // .attr('class','rectClass')
+        // .attr('width',xScale.bandwidth())
+        // .attr("height",d=>yScale(d.value))
+        // .attr('x',d=>xScale(d.value))
+        // .attr('y',d=>yScale(d.key))
+        // .attr('fill','blue')
+
+  
+
+
+    // var pie = d3.pie()
+    //   .value(function(d) {
+    //     return d.value;
+    //   })
+    //   .sort(null);
+    // var arc = d3.arc()
+    //     .innerRadius(0)
+    //     .outerRadius(radius-50);
 
    
     //Generate groups
-    var arcs = g.selectAll(".arc")
-        .data(pie(ndata))
-        .enter()
-        .append("g")
-        .attr("class", "arc")
-    arcs.append("path")
-        .attr("fill", function (d, i) {
-            return color(i);
-        })
-        .attr("d", arc);
+    // var arcs = g.selectAll(".arc")
+    //     .data(pie(ndata))
+    //     .enter()
+    //     .append("g")
+    //     .attr("class", "arc")
+    // arcs.append("path")
+    //     .attr("fill", function (d, i) {
+    //         return color(i);
+    //     })
+    //     .attr("d", arc);
 
-        let legend = svg.selectAll(".legend")
-                    .data(pie(ndata))
-                    .enter().append('g')
-                    .attr('class','legend')
-                    .attr('transform',(d,i)=>'translate('+-10+','+15*i+')');
+    //     let legend = svg.selectAll(".legend")
+    //                 .data(pie(ndata))
+    //                 .enter().append('g')
+    //                 .attr('class','legend')
+    //                 .attr('transform',(d,i)=>'translate('+-10+','+15*i+')');
 
-        legend.append("rect").attr('x',10)
-                .attr('width',10).attr('height',10).style('fill',function(d,i){
+    //     legend.append("rect").attr('x',10)
+    //             .attr('width',10).attr('height',10).style('fill',function(d,i){
          
-            return color(i);
-        });
-        legend.append("text")
-        .text(function(d){
-          return d.data.value + "  " + d.data.key;
-        })
-        .style("font-size", 12)
-        .attr("y", 10)
-        .attr("x", 25);
+    //         return color(i);
+    //     });
+    //     legend.append("text")
+    //     .text(function(d){
+    //       return d.data.value + "  " + d.data.key;
+    //     })
+    //     .style("font-size", 12)
+    //     .attr("y", 10)
+    //     .attr("x", 25);
     }
 }
 
@@ -332,7 +393,7 @@ function Linechart(){
             new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
             xScale.domain([2010,2020]);
             yScale.domain([d3.min(new_data,d=>d.count),d3.max(new_data,d=>d.count)]);
-            let xAxis = d3.axisBottom(xScale); ;
+            let xAxis = d3.axisBottom(xScale);
             let yAxis = d3.axisLeft(yScale);
             let  dataNest = Array.from(
                 d3.group(new_data, d => d.type), ([key, value]) => ({key, value})
