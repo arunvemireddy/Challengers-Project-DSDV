@@ -79,7 +79,7 @@ body,html{
     background-color:rgb(155, 195, 218)
 }
 
-.bottomtworight{
+#barchart{
     float: right;
     height:40%;
     width:50%;

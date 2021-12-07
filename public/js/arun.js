@@ -363,7 +363,7 @@ function Linechart(){
         success: function (data) {
             let ob = [];
             let ty='rating';
-            let movieortv ='TV Show';
+            let movieortv ='Movie';
             // for(let i=0;i<data.length;i++){
                 
             //     data[i].date_added = new Date(data[i].date_added).getFullYear();
