@@ -35,7 +35,8 @@ body {
 }
 
 .tooltip {
-    fill:black;
+    position: absolute;
+    visibility: hidden;
 }
 
 .subplot-labels {
@@ -45,4 +46,17 @@ body {
 
 .axis {
     font-size: 9.5px;
+}
+
+.grid-tooltip {
+    visibility: visible;
+    text-anchor: start;
+    border-radius: 5px;
+    fill:white;
+    font-size: 22px;
+}
+
+.grid-tooltip-bg {
+    background: cornsilk;
+    padding:5px;
 }
