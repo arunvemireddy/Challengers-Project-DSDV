@@ -10,6 +10,7 @@ let g = svg.append('g');
 
 let new_data = {};
 let countries_data = [];
+let select_type;
 
 
 $.ajax({
@@ -87,17 +88,17 @@ $.ajax({
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
 
-            // let Tooltip = d3.select("#mapvis")
-            // .append("div")
-            // .attr("class", "tooltip")
-            // .style("opacity", 1)
-            // .style("background-color", "white")
-            // .style("border", "solid")
-            // .style("border-width", "2px")
-            // .style("border-radius", "5px")
-            // .style("padding", "5px")
-            // .style('display','inline')
-            // .style('position','fixed')
+            let Tooltip = d3.select("#mapvis")
+            .append("span")
+            .attr("class", "tooltip")
+            .style("opacity", 1)
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+            .style('display','inline')
+            .style('position','absolute')
             
             nc = topojson.feature(map, map.objects.countries);
             let projection = d3.geoMercator()
@@ -151,16 +152,20 @@ $.ajax({
                             alert('please select colored countries');
                         }
                     })
-                    // .on('mousemove',function(e,d){
-                    //    // d3.select(this).style('fill','black')
-                    //     Tooltip.html(e.target.__data__.properties.name)
-                    //     .style("left", (d3.pointer(e)[0]+40) + "px")
-                    //     .style("top",  (d3.pointer(e)[1]) + "px")
-                    //     .style('opacity',1);
-                    // })
-                    // .on('mouseleave',function(e,d){
-                    //     Tooltip.style('opacity',0)
-                    //  })
+                    .on('mouseover',function(e,d){
+                        d3.select(this).style('cursor','pointer');
+                    })
+                    .on('mousemove',function(e,d){
+                       // d3.select(this).style('fill','black')
+                      //  document.getElementById('country').value=e.target.__data__.properties.name;
+                        // Tooltip.html(e.target.__data__.properties.name)
+                        // .style("left", (d3.pointer(e)[0]+40) + "px")
+                        // .style("top",  (d3.pointer(e)[1]) + "px")
+                        // .style('opacity',1);
+                    })
+                    .on('mouseleave',function(e,d){
+                        Tooltip.style('opacity',0)
+                     })
             })
         })
         var zoom = d3.zoom()
@@ -208,7 +213,6 @@ function piedata(value) {
                  item=[];
             })
             piechart(newData);
-            
         }
     })
 }
@@ -218,56 +222,117 @@ function piechart(ndata) {
     console.log(ndata);
     if(ndata.length>0){
     let data=[];
-    let width = $('#pievis').width();
-    let height = $('#pievis').height();
-    let svg = d3.select('#pievis')
-    .append('svg')
-    .attr('width', width)
-    .attr('height', height+300);
-    radius = Math.min(width, height) / 2;
-    let g = svg.append('g')
-    .attr('transform', 'translate(' + (width-20) / 2 + "," + (height+70) / 2 + ")");
+    let pie_margin ={top:20,right:20,left:45,bottom:30};
+    let pie_width = $('#pievis').width()-pie_margin.left-pie_margin.right;
+    let pie_height = $('#pievis').height()-pie_margin.top-pie_margin.bottom;
+    let pie_svg = d3.select('#pievis')
+                    .append('svg')
+                    .attr('width', pie_width+pie_margin.left+pie_margin.right)
+                    .attr('height', pie_height+pie_margin.top+pie_margin.bottom)
+                    .append('g').attr("transform","translate(" + pie_margin.left + " , " + pie_margin.top + ")");;
+
+    let xLabel = 'Type';
+    let yLabel = 'Total Shows';
+
     var color = d3.scaleOrdinal(d3.schemeCategory10);
-    var pie = d3.pie()
-      .value(function(d) {
-        return d.value;
-      })
-      .sort(null);
-    var arc = d3.arc()
-        .innerRadius(0)
-        .outerRadius(radius-50);
+
+    let xScale = d3.scaleBand().range([0,pie_width]);
+    let yScale = d3.scaleLinear().range([pie_height,0]);
+
+    
+    xScale.domain(ndata.map(d=>d.key));
+    yScale.domain([0,d3.max(ndata,d=>d.value)]);
+
+    let xAxis= d3.axisBottom(xScale);
+    let yAxis=d3.axisLeft(yScale);
+
+    pie_svg.append('g')
+        .attr("transform","translate("+0+","+(pie_height)+")")
+        .attr('id','xAxis')
+        .call(xAxis)
+     
+        .append('text')
+        .attr('class','label')
+        .attr('id','xtextValue')
+        .attr('x',pie_width)
+        .attr('y',0)
+        .text(xLabel);
+
+    pie_svg.append('g')
+        .call(yAxis)
+        .append('text')
+        .attr('class','label')
+        .attr('transform','rotate(-90)')
+        .attr('y',15).text(yLabel);
+
+
+    pie_svg.selectAll('rect')
+        .data(ndata).enter()
+        .append('rect')
+        .attr('class','rectangle')
+        .attr('fill','black')
+        .attr('x',d=>xScale(d.key)+40)
+        .attr('y',d=>yScale(d.value))
+        .attr('width',xScale.bandwidth()-80)
+        .attr("height",d=>pie_height-yScale(d.value))
+        .on('click',function(e,i){
+            d3.selectAll('.rectangle').attr('fill','black');
+            d3.select(this).attr('fill','red');
+            select_type=i.key;
+            //console.log(select_type);
+            Linechart();
+        });
+
+        // .attr('class','rectClass')
+        // .attr('width',xScale.bandwidth())
+        // .attr("height",d=>yScale(d.value))
+        // .attr('x',d=>xScale(d.value))
+        // .attr('y',d=>yScale(d.key))
+        // .attr('fill','blue')
+
+  
+
+
+    // var pie = d3.pie()
+    //   .value(function(d) {
+    //     return d.value;
+    //   })
+    //   .sort(null);
+    // var arc = d3.arc()
+    //     .innerRadius(0)
+    //     .outerRadius(radius-50);
 
    
     //Generate groups
-    var arcs = g.selectAll(".arc")
-        .data(pie(ndata))
-        .enter()
-        .append("g")
-        .attr("class", "arc")
-    arcs.append("path")
-        .attr("fill", function (d, i) {
-            return color(i);
-        })
-        .attr("d", arc);
+    // var arcs = g.selectAll(".arc")
+    //     .data(pie(ndata))
+    //     .enter()
+    //     .append("g")
+    //     .attr("class", "arc")
+    // arcs.append("path")
+    //     .attr("fill", function (d, i) {
+    //         return color(i);
+    //     })
+    //     .attr("d", arc);
 
-        let legend = svg.selectAll(".legend")
-                    .data(pie(ndata))
-                    .enter().append('g')
-                    .attr('class','legend')
-                    .attr('transform',(d,i)=>'translate('+-10+','+15*i+')');
+    //     let legend = svg.selectAll(".legend")
+    //                 .data(pie(ndata))
+    //                 .enter().append('g')
+    //                 .attr('class','legend')
+    //                 .attr('transform',(d,i)=>'translate('+-10+','+15*i+')');
 
-        legend.append("rect").attr('x',10)
-                .attr('width',10).attr('height',10).style('fill',function(d,i){
+    //     legend.append("rect").attr('x',10)
+    //             .attr('width',10).attr('height',10).style('fill',function(d,i){
          
-            return color(i);
-        });
-        legend.append("text")
-        .text(function(d){
-          return d.data.value + "  " + d.data.key;
-        })
-        .style("font-size", 12)
-        .attr("y", 10)
-        .attr("x", 25);
+    //         return color(i);
+    //     });
+    //     legend.append("text")
+    //     .text(function(d){
+    //       return d.data.value + "  " + d.data.key;
+    //     })
+    //     .style("font-size", 12)
+    //     .attr("y", 10)
+    //     .attr("x", 25);
     }
 }
 
@@ -291,6 +356,8 @@ function Linechart(){
     let xScale = d3.scaleTime().range([0,width]);
     let yScale = d3.scaleLinear().range([height,0]);
 
+    svg.append('text').text('Ratings').attr('fill','black').attr('x',(width/2)-100).attr('y',10);
+
     $.ajax({
         method: 'post',
         url: '/getCountryData',
@@ -299,22 +366,38 @@ function Linechart(){
         contentType: 'application/json',
         success: function (data) {
             let ob = [];
-            for(let i=0;i<data.length;i++){
-                
-                data[i].date_added = new Date(data[i].date_added).getFullYear();
+            let ty='rating';
+            let movieortv =select_type;
+            console.log('movieortv');
+            console.log(movieortv);
+       
+                for(let i=0;i<data.length;i++){
+                    
+                    data[i].date_added = new Date(data[i].date_added).getFullYear();
+                    if(!isNaN(data[i].date_added)){
+                        if(movieortv==data[i].type){
+                        if(ob[[data[i].date_added,data[i].rating]]==undefined){
+                            ob[[data[i].date_added,data[i].rating]]=1;
+                        }else{
+                            let val = ob[[data[i].date_added,data[i].rating]];
+                            val = val+1;
+                            ob[[data[i].date_added,data[i].rating]]=val;
+                        }
+                    }
 
-                if(!isNaN(data[i].date_added)){
-            
-                    if(ob[[data[i].date_added,data[i].type]]==undefined){
-                        ob[[data[i].date_added,data[i].type]]=1;
-                    }else{
-                        let val = ob[[data[i].date_added,data[i].type]];
-                        val = val+1;
-                        ob[[data[i].date_added,data[i].type]]=val;
+                    if(movieortv==undefined){
+                        if(ob[[data[i].date_added,data[i].rating]]==undefined){
+                            ob[[data[i].date_added,data[i].rating]]=1;
+                        }else{
+                            let val = ob[[data[i].date_added,data[i].rating]];
+                            val = val+1;
+                            ob[[data[i].date_added,data[i].rating]]=val;
+                        }
                     }
                 }
-            }
-        
+                 }
+
+            
             console.log(ob);
              let item={};
             let new_data=[];
@@ -326,13 +409,14 @@ function Linechart(){
                 new_data.push(item);
                 item={};
             })
-            let color = d3.scaleOrdinal().range(['orange','steelblue']);
+            let color = d3.scaleOrdinal().range(['rgb(255,0,0)','green','yellow','white','black','brown','orange','blue','steelblue',
+            'rgb(168, 50, 168)','rgb(0, 255, 242)','rgb(119, 0, 255)','rgb(81, 255, 0)','rgb(255, 0, 136)']);
            
          
             new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
             xScale.domain([2010,2020]);
             yScale.domain([d3.min(new_data,d=>d.count),d3.max(new_data,d=>d.count)]);
-            let xAxis = d3.axisBottom(xScale); ;
+            let xAxis = d3.axisBottom(xScale);
             let yAxis = d3.axisLeft(yScale);
             let  dataNest = Array.from(
                 d3.group(new_data, d => d.type), ([key, value]) => ({key, value})
@@ -367,7 +451,7 @@ function Linechart(){
                     .attr('stroke',function(){
                         return color(d.key)
                     })
-                    .attr("stroke-width", 1.5)
+                    .attr("stroke-width", 3.5)
                     .attr('d',countline(d.value))
                     
                 });
