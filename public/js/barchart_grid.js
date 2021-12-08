@@ -18,7 +18,6 @@ function barChart(){
 document.getElementById("barchart-grid").innerHTML = "";
 let gridSVG = d3.select('#barchart-grid').append('svg').attr('width', grid_width + 10).attr('height', grid_height)
 
-let type = 'Movie'    
 let country = document.getElementById('country').value;
 if(country === '') {
     country = null;
@@ -32,10 +31,12 @@ $.ajax({
     dataType: 'json',
     contentType: 'application/json',
     success: function (data) {
-        console.log(data)
+        let type = select_type;
+        console.log('Type', type)
         let genres_list = {}
         data.forEach(d => {
-            if(d.type === type) {
+            if(d.type === type || type === undefined) {
+                console.log('here we are')
                 let genre_string = d.listed_in.replaceAll(', ', ',')
                 let genres = genre_string.split(',')
                 let new_genre_array = [];
@@ -75,7 +76,7 @@ $.ajax({
             if(d.rating === undefined) {
                 console.log('Undefined', d)
             }
-            if(d.type === type) {
+            if(d.type === type || type===undefined) {
                 d.listed_in.forEach(g => {
                     if (!top_genres_list.includes(g)) {
                         genre = 'Other';
