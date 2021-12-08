@@ -305,7 +305,7 @@ function piechart(ndata) {
             barChart();
         })
         .on('mouseover',function(e,i){
-            pie_svg.append('text').attr('class','pietext').text(i.value).attr('x',p=>pie_xScale(i.key)+40).attr('y',q=>pie_yScale(i.value)).style('fill','red');
+            pie_svg.append('text').attr('class','pietext').text(i.value).attr('x',p=>pie_xScale(i.key)+40).attr('y',q=>pie_yScale(i.value)).style('fill','black');
         })
         .on('mouseleave',function(e,i){
             pie_svg.selectAll('.pietext').text('');
