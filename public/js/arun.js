@@ -99,12 +99,13 @@ $.ajax({
         .then(function (map) {
             let Tooltip = d3.select("#mapvis")
             .append("span")
-            .attr("class", "tooltip")
             .style("opacity", 1)
-            .style("background-color", "white")
+            .style('color','rgb(255, 0, 0)')
+            .style('font-weight','bolder')
+            .style("background-color", "none")
             .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
+            .style("border-width", "0px")
+            .style("border-radius", "0px")
             .style("padding", "5px")
             .style('display','inline')
             .style('position','absolute')
@@ -172,12 +173,13 @@ $.ajax({
                         d3.select(this).style('cursor','pointer');
                     })
                     .on('mousemove',function(e,d){
-                       // d3.select(this).style('fill','black')
-                      //  document.getElementById('country').value=e.target.__data__.properties.name;
-                        // Tooltip.html(e.target.__data__.properties.name)
-                        // .style("left", (d3.pointer(e)[0]+40) + "px")
-                        // .style("top",  (d3.pointer(e)[1]) + "px")
-                        // .style('opacity',1);
+                    //    d3.select(this).style('fill','black')
+                    //    document.getElementById('country').value=e.target.__data__.properties.name;
+                        Tooltip.html(e.target.__data__.properties.name)
+                        .style("left", (d3.pointer(e)[0]+5) + "px")
+                        .style("top",  (d3.pointer(e)[1]-10) + "px")
+                        .style('opacity',1);
+                        
                     })
                     .on('mouseleave',function(e,d){
                         Tooltip.style('opacity',0)
@@ -236,9 +238,7 @@ function piedata(value) {
 
 //pie chart
 function piechart(ndata) {
-    //console.log(ndata);
     if(ndata.length>0){
-    let data=[];
     let pie_margin ={top:20,right:20,left:45,bottom:30};
     let pie_width = $('#pievis').width()-pie_margin.left-pie_margin.right;
     let pie_height = $('#pievis').height()-pie_margin.top-pie_margin.bottom;
@@ -248,42 +248,41 @@ function piechart(ndata) {
                     .attr('height', pie_height+pie_margin.top+pie_margin.bottom)
                     .append('g').attr("transform","translate(" + pie_margin.left + " , " + pie_margin.top + ")");;
 
-    let xLabel = 'Type';
-    let yLabel = 'Total Shows';
+    let pie_xLabel = 'Type';
+    let pie_yLabel = 'Total Shows';
 
-    var color = d3.scaleOrdinal(d3.schemeCategory10);
-
-    let xScale = d3.scaleBand().range([0,pie_width]);
-    let yScale = d3.scaleLinear().range([pie_height,0]);
+    let pie_xScale = d3.scaleBand().range([0,pie_width]);
+    let pie_yScale = d3.scaleLinear().range([pie_height,0]);
 
     
-    xScale.domain(ndata.map(d=>d.key));
-    yScale.domain([0,d3.max(ndata,d=>d.value)]);
+    pie_xScale.domain(ndata.map(d=>d.key));
+    pie_yScale.domain([0,d3.max(ndata,d=>d.value)]);
 
-    let xAxis= d3.axisBottom(xScale);
-    let yAxis=d3.axisLeft(yScale);
+    let pie_xAxis= d3.axisBottom(pie_xScale);
+    let pie_yAxis=d3.axisLeft(pie_yScale);
 
     pie_svg.append('g')
         .attr("transform","translate("+0+","+(pie_height)+")")
         .attr('id','xAxis')
-        .call(xAxis)
+        .call(pie_xAxis)
         .append('text')
         .attr('class','label')
         .attr('id','xtextValue')
         .attr('x',pie_width)
         .attr('y',15)
-        .text(xLabel).attr('fill','black');
+        .text(pie_xLabel).attr('fill','black');
 
     pie_svg.append('g')
-        .call(yAxis)
+        .call(pie_yAxis)
         .append('text')
         .attr('class','label')
         .attr('transform','rotate(-90)')
-        .attr('y',15).text(yLabel).attr('fill','black');
+        .attr('y',15).text(pie_yLabel).attr('fill','black');
 
 
     pie_svg.selectAll('rect')
-        .data(ndata).enter()
+        .data(ndata)
+        .enter()
         .append('rect')
         .attr('class','rectangle')
         .attr('fill',function(d){
@@ -294,71 +293,56 @@ function piechart(ndata) {
                 return '#9ecae1';
             }
         })
-        .attr('x',d=>xScale(d.key)+40)
-        .attr('y',d=>yScale(d.value))
-        .attr('width',xScale.bandwidth()-80)
-        .attr("height",d=>pie_height-yScale(d.value))
+        .attr('x',d=>pie_xScale(d.key)+40)
+        .attr('y',d=>pie_yScale(d.value))
+        .attr('width',pie_xScale.bandwidth()-80)
+        .attr("height",d=>pie_height-pie_yScale(d.value))
         .on('click',function(e,i){
             d3.selectAll('.rectangle').attr('fill','#9ecae1');
             d3.select(this).attr('fill','orange');
             select_type=i.key;
-            //console.log(select_type);
             Linechart();
             barChart();
-        });
-
-        // .attr('class','rectClass')
-        // .attr('width',xScale.bandwidth())
-        // .attr("height",d=>yScale(d.value))
-        // .attr('x',d=>xScale(d.value))
-        // .attr('y',d=>yScale(d.key))
-        // .attr('fill','blue')
-
-  
-
-
-    // var pie = d3.pie()
-    //   .value(function(d) {
-    //     return d.value;
-    //   })
-    //   .sort(null);
-    // var arc = d3.arc()
-    //     .innerRadius(0)
-    //     .outerRadius(radius-50);
-
-   
-    //Generate groups
-    // var arcs = g.selectAll(".arc")
-    //     .data(pie(ndata))
-    //     .enter()
-    //     .append("g")
-    //     .attr("class", "arc")
-    // arcs.append("path")
-    //     .attr("fill", function (d, i) {
-    //         return color(i);
-    //     })
-    //     .attr("d", arc);
-
-    //     let legend = svg.selectAll(".legend")
-    //                 .data(pie(ndata))
-    //                 .enter().append('g')
-    //                 .attr('class','legend')
-    //                 .attr('transform',(d,i)=>'translate('+-10+','+15*i+')');
-
-    //     legend.append("rect").attr('x',10)
-    //             .attr('width',10).attr('height',10).style('fill',function(d,i){
-         
-    //         return color(i);
-    //     });
-    //     legend.append("text")
-    //     .text(function(d){
-    //       return d.data.value + "  " + d.data.key;
-    //     })
-    //     .style("font-size", 12)
-    //     .attr("y", 10)
-    //     .attr("x", 25);
+        })
+        .on('mouseover',function(e,i){
+            pie_svg.append('text').attr('class','pietext').text(i.value).attr('x',p=>pie_xScale(i.key)+40).attr('y',q=>pie_yScale(i.value)).style('fill','red');
+        })
+        .on('mouseleave',function(e,i){
+            pie_svg.selectAll('.pietext').text('');
+        })
     }
 }
+
+// function updatePieChart(){
+//     pie_svg.selectAll('rect')
+//         .data(ndata)
+//         .join(
+//             (enter)=>{
+//                 enter.append('g')
+//                 .attr('class','rectangle')
+//                 .append('rect')
+//                 .attr('x',d=>xScale(d.key)+40)
+//                 .attr('y',d=>yScale(d.value))
+//                 .transition()
+//                 .duration(500)
+//                 .attr('width',xScale.bandwidth()-80)
+//                 .attr("height",d=>pie_height-yScale(d.value))
+//                 .attr('fill',function(d){
+//                     if(select_type===d.key){
+//                         return 'orange';
+//                     }
+//                     else{
+//                         return '#9ecae1';
+//                     }
+//                 })
+               
+//             },
+//             (exit)=>{
+//                 exit.remove();
+//             }
+            
+//         )
+// }
 
 Linechart();
 
