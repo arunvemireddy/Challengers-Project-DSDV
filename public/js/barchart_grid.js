@@ -22,7 +22,6 @@ let country = document.getElementById('country').value;
 if(country === '') {
     country = null;
 }
-console.log(country)
     
 $.ajax({
     method: 'post',
@@ -32,11 +31,9 @@ $.ajax({
     contentType: 'application/json',
     success: function (data) {
         let type = select_type;
-        console.log('Type', type)
         let genres_list = {}
         data.forEach(d => {
             if(d.type === type || type === undefined) {
-                console.log('here we are')
                 let genre_string = d.listed_in.replaceAll(', ', ',')
                 let genres = genre_string.split(',')
                 let new_genre_array = [];
@@ -63,123 +60,111 @@ $.ajax({
 
         let top_genres_list = getGenres(sortable);
 
-        console.log(top_genres_list)
+        if(top_genres_list.length > 0) {
 
-        let genre;
-        let ratings_data = {};
-        let isOther = false;
-        let ratings_list = []
-        data.forEach(d => {
-            if(!ratings_list.includes(d.rating)) {
-                ratings_list.push(d.rating)
-            }
-            if(d.rating === undefined) {
-                console.log('Undefined', d)
-            }
-            if(d.type === type || type===undefined) {
-                d.listed_in.forEach(g => {
-                    if (!top_genres_list.includes(g)) {
-                        genre = 'Other';
-                        isOther = true;
-                    } else {
-                        genre = g;
-                    }
-                    if(d.rating === 'undefined') {
-                        console.log('Undefined', d)
-                    }
-                    if (ratings_data[d.rating] === undefined) {
-                        ratings_data[d.rating] = {};
-                    }
-                    if (ratings_data[d.rating][genre] === undefined) {
-                        ratings_data[d.rating][genre] = 1;
-                    } else {
-                        ratings_data[d.rating][genre]++;
-                    }
-                })
-            }
-        })
-        console.log(ratings_list)
-        if(isOther) {
-            top_genres_list.push('Other')
-        }
-        console.log('Ratings', ratings_data)
-        let bar_data = [];
-        Object.keys(ratings_data).forEach(g => {
-            let rating_item = {};
-            top_genres_list.forEach(d => {
-                if (ratings_data[g][d] !== undefined) {
-                    rating_item[d] = ratings_data[g][d];
-                } else {
-                    rating_item[d] = 0;
+            let genre;
+            let ratings_data = {};
+            let isOther = false;
+            let ratings_list = []
+            data.forEach(d => {
+                if (!ratings_list.includes(d.rating)) {
+                    ratings_list.push(d.rating)
+                }
+                if (d.type === type || type === undefined) {
+                    d.listed_in.forEach(g => {
+                        if (!top_genres_list.includes(g)) {
+                            genre = 'Other';
+                            isOther = true;
+                        } else {
+                            genre = g;
+                        }
+                        if (ratings_data[d.rating] === undefined) {
+                            ratings_data[d.rating] = {};
+                        }
+                        if (ratings_data[d.rating][genre] === undefined) {
+                            ratings_data[d.rating][genre] = 1;
+                        } else {
+                            ratings_data[d.rating][genre]++;
+                        }
+                    })
                 }
             })
-            rating_item['rating'] =  g;
-            rating_item['max'] = getMaxCount(rating_item);
-            bar_data.push(rating_item);
-        })
 
-        console.log('Data', bar_data)
-        let y = d3.scaleBand()
-            .padding(0.1);
-        let x = d3.scaleLinear()
-        y.domain(bar_data.map(r=>r.rating));
-        x.domain([0, d3.max(bar_data, d => d.max)]);
+            if (isOther) {
+                top_genres_list.push('Other')
+            }
+            let bar_data = [];
+            Object.keys(ratings_data).forEach(g => {
+                let rating_item = {};
+                top_genres_list.forEach(d => {
+                    if (ratings_data[g][d] !== undefined) {
+                        rating_item[d] = ratings_data[g][d];
+                    } else {
+                        rating_item[d] = 0;
+                    }
+                })
+                rating_item['rating'] = g;
+                rating_item['max'] = getMaxCount(rating_item);
+                bar_data.push(rating_item);
+            })
 
-        let xlabel_row;
-        if(top_genres_list.length < 4) {
-            xlabel_row = 0;
-        } else if(top_genres_list.length < 7) {
-            xlabel_row = 3;
+            let y = d3.scaleBand()
+                .padding(0.1);
+            let x = d3.scaleLinear()
+            y.domain(bar_data.map(r => r.rating));
+            x.domain([0, d3.max(bar_data, d => d.max)]);
+
+            let xlabel_row;
+            if (top_genres_list.length < 4) {
+                xlabel_row = 0;
+            } else if (top_genres_list.length < 7) {
+                xlabel_row = 3;
+            } else {
+                xlabel_row = 6;
+            }
+            for (let i = 0; i < top_genres_list.length; i++) {
+                let vert_spacing;
+                if (i < 3) {
+                    vert_spacing = 0;
+                } else if (i < 6) {
+                    vert_spacing = grid[0].y + grid_sizes.bottom_margin;
+                } else {
+                    vert_spacing = grid[3].y + grid_sizes.bottom_margin;
+                }
+                if ((i + 1) % 3 === 0) {
+                    x.range([grid[i].x, grid_width - 10])
+                } else {
+                    x.range([grid[i].x, grid[i + 1].x - grid_sizes.left_margin - 10])
+                }
+                y.range([grid_sizes.top_margin, grid[0].y])
+                let xAxis = d3.axisBottom(x);
+                let yAxis = d3.axisLeft(y);
+                let xAxisTicks = x.ticks(5).filter(tick => Number.isInteger(tick))
+                xAxis
+                    .tickValues(xAxisTicks)
+                    .tickFormat(d3.format('d'))
+                gridSVG.append('text').attr('transform', 'translate(' + (grid[i].x + .5 * grid_sizes.plot_width) + ', ' + (grid[i].y - grid_sizes.plot_height - 10) + ')').attr('class', 'subplot-labels').text(top_genres_list[i])
+                gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + 0 + ', ' + grid[i].y + ')').call(xAxis);
+                gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
+                let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
+                    d => 'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
+                    .on('mouseenter', (e, d) => {
+                        let bar = d3.select(e.target);
+                        bar.style('fill', 'blue');
+                        bar.append('text').attr('class', 'grid-tooltip').text(d[top_genres_list[i]])
+                    })
+                    .on('mouseleave', e => {
+                        d3.select(e.target).style('fill', 'black')
+                        d3.select('.grid-tooltip').remove()
+                        //d3.select('#barchart-tooltip').remove()
+                    })
+                bars.append('rect').attr('width', d => (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
+            }
+            gridSVG.append('text').attr('x', 0 - (grid[xlabel_row].y / 2 + grid_sizes.bottom_margin)).attr('y', grid_sizes.left_margin / 4).attr('class', 'ylabel').text('R A T I N G')
+            gridSVG.append('text').attr('x', (grid_width + grid_sizes.left_margin) / 2).attr('y', grid[xlabel_row].y + grid_sizes.top_margin).attr('class', 'xlabel').text('NUMBER OF TITLES')
         } else {
-            xlabel_row = 6;
+            gridSVG.append('text').attr('x', grid_width/2).attr('y', grid_height/2).attr('class', 'no-data-label').text('NO DATA')
         }
-        for(let i = 0; i < top_genres_list.length; i++) {
-            let vert_spacing;
-            if(i < 3) {
-                vert_spacing = 0;
-            } else if(i < 6) {
-                vert_spacing = grid[0].y + grid_sizes.bottom_margin;
-            } else {
-                vert_spacing = grid[3].y + grid_sizes.bottom_margin;
-            }
-            if((i+1) % 3 === 0) {
-                x.range([grid[i].x, grid_width - 10])
-            } else {
-                x.range([grid[i].x, grid[i+1].x - grid_sizes.left_margin - 10])
-            }
-            console.log(bar_data[0][top_genres_list[i]])
-            y.range([grid_sizes.top_margin, grid[0].y])
-            let xAxis = d3.axisBottom(x);
-            let yAxis = d3.axisLeft(y);
-            let xAxisTicks = x.ticks(5).filter(tick => Number.isInteger(tick))
-            xAxis
-                .tickValues(xAxisTicks)
-                .tickFormat(d3.format('d'))
-            gridSVG.append('text').attr('transform', 'translate(' + (grid[i].x + .5 * grid_sizes.plot_width) + ', ' + (grid[i].y - grid_sizes.plot_height - 10) + ')').attr('class', 'subplot-labels').text(top_genres_list[i])
-            gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + 0 + ', ' + grid[i].y + ')').call(xAxis);
-            gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
-            let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
-                d=>'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
-                .on('mouseenter', (e, d) => {
-                    let bar = d3.select(e.target);
-                    bar.style('fill', 'blue');
-                    bar.append('text').attr('class', 'grid-tooltip').text(d[top_genres_list[i]])
-                })
-                .on('mouseleave', e => {
-                    d3.select(e.target).style('fill', 'black')
-                    d3.select('.grid-tooltip').remove()
-                    //d3.select('#barchart-tooltip').remove()
-                })
-            bars.append('rect').attr('width', d=> (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
-        }
-        gridSVG.append('text').attr('x', 0-(grid[xlabel_row].y/2 + grid_sizes.bottom_margin)).attr('y', grid_sizes.left_margin/4).attr('class', 'ylabel').text('R A T I N G')
-        gridSVG.append('text').attr('x', (grid_width + grid_sizes.left_margin)/2).attr('y', grid[xlabel_row].y + grid_sizes.top_margin).attr('class', 'xlabel').text('NUMBER OF TITLES')
-
-        // let legend = svg.selectAll('.legend').data(color.domain()).enter().append('g').attr('class', 'legend')
-        //     .attr('transform', (d, i) => 'translate(' + (width - margin.right) + ', ' + 15 * i + ')');
-        // legend.append('rect').attr('width', 10).attr('height', 10)
-        //     .attr('transform', 'translate(0, 10)').style('fill', d => color(d));
-        // legend.append('text').text(d => d.replace('-', ' ')).attr('x', 15).attr('y',  20)
     }
 })
 }
@@ -204,7 +189,6 @@ function getGenres(genre_array) {
     } else {
         num_genres = genres_to_display
     }
-    console.log(genre_array)
     let new_array = [];
     for(let i = 0; i < num_genres; i++) {
         new_array.push(genre_array[i][0]);

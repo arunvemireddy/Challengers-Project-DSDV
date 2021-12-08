@@ -270,7 +270,14 @@ function piechart(ndata) {
         .data(ndata).enter()
         .append('rect')
         .attr('class','rectangle')
-        .attr('fill','black')
+        .attr('fill',function(d){
+            if(select_type===d.key){
+                return 'red';
+            }
+            else{
+                return 'black';
+            }
+        })
         .attr('x',d=>xScale(d.key)+40)
         .attr('y',d=>yScale(d.value))
         .attr('width',xScale.bandwidth()-80)
@@ -281,6 +288,7 @@ function piechart(ndata) {
             select_type=i.key;
             //console.log(select_type);
             Linechart();
+            barChart();
         });
 
         // .attr('class','rectClass')
@@ -353,7 +361,7 @@ function Linechart(){
                 .append('g')
                 .attr('transform',"translate("+margin.left+" "+margin.top+")");
         
-    let xScale = d3.scaleTime().range([0,width]);
+    let xScale = d3.scaleTime().range([0,width-120]);
     let yScale = d3.scaleLinear().range([height,0]);
 
     svg.append('text').text('Ratings').attr('fill','black').attr('x',(width/2)-100).attr('y',10);
@@ -414,14 +422,14 @@ function Linechart(){
            
          
             new_data.sort((a, b) => new Date(a.year) - new Date(b.year))
-            xScale.domain([2010,2020]);
+            xScale.domain(d3.extent(new_data, d => new Date(d.year)));
             yScale.domain([d3.min(new_data,d=>d.count),d3.max(new_data,d=>d.count)]);
             let xAxis = d3.axisBottom(xScale);
             let yAxis = d3.axisLeft(yScale);
             let  dataNest = Array.from(
                 d3.group(new_data, d => d.type), ([key, value]) => ({key, value})
               );
-            let countline = d3.line().x(function(d) { return xScale(d.year); }).y(function(d) { return yScale(d.count); });
+            let countline = d3.line().x(function(d) { return xScale(new Date(d.year)); }).y(function(d) { return yScale(d.count); });
         
 
             svg.append('g')
@@ -429,8 +437,8 @@ function Linechart(){
                 .call(xAxis).attr('class','xAxisLine')
                 .append('text')
                 .attr('class','label')
-                .attr('x',width-200)
-                .attr('y',10)
+                .attr('x',width-120)
+                .attr('y',15)
                 .text(xLabel)
                 .attr('class','texLabel');
 

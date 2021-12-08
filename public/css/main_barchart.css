@@ -60,3 +60,8 @@ body {
     background: cornsilk;
     padding:5px;
 }
+
+.no-data-label {
+    font-size:50px;
+    text-anchor: middle;
+}
