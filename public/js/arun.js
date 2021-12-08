@@ -202,11 +202,12 @@ function piedata(value) {
                     map.set(data[i].type,value);
                 }
             }
+            let mapAsc = new Map([...map.entries()].sort());
             let newData=[];
             let item={};
             document.getElementById('pievis').innerHTML = '';
             
-            map.forEach((val,key)=>{
+            mapAsc.forEach((val,key)=>{
                 item['value']= parseInt(val);
                 item['key']=key;
                 newData.push(item);
@@ -250,20 +251,19 @@ function piechart(ndata) {
         .attr("transform","translate("+0+","+(pie_height)+")")
         .attr('id','xAxis')
         .call(xAxis)
-     
         .append('text')
         .attr('class','label')
         .attr('id','xtextValue')
         .attr('x',pie_width)
-        .attr('y',0)
-        .text(xLabel);
+        .attr('y',15)
+        .text(xLabel).attr('fill','black');
 
     pie_svg.append('g')
         .call(yAxis)
         .append('text')
         .attr('class','label')
         .attr('transform','rotate(-90)')
-        .attr('y',15).text(yLabel);
+        .attr('y',15).text(yLabel).attr('fill','black');
 
 
     pie_svg.selectAll('rect')
