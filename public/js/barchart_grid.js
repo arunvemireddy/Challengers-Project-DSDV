@@ -159,12 +159,18 @@ $.ajax({
             gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
             let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
                 d=>'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
-                .on('mouseenter', e => {
-
+                .on('mouseenter', (e, d) => {
+                    let bar = d3.select(e.target);
+                    bar.style('fill', 'blue');
+                    bar.append('text').attr('class', 'grid-tooltip').text(d[top_genres_list[i]])
+                })
+                .on('mouseleave', e => {
+                    d3.select(e.target).style('fill', 'black')
+                    d3.select('.grid-tooltip').remove()
+                    //d3.select('#barchart-tooltip').remove()
                 })
             bars.append('rect').attr('width', d=> (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
         }
-        console.log(xlabel_row, grid_sizes.plot_height)
         gridSVG.append('text').attr('x', 0-(grid[xlabel_row].y/2 + grid_sizes.bottom_margin)).attr('y', grid_sizes.left_margin/4).attr('class', 'ylabel').text('R A T I N G')
         gridSVG.append('text').attr('x', (grid_width + grid_sizes.left_margin)/2).attr('y', grid[xlabel_row].y + grid_sizes.top_margin).attr('class', 'xlabel').text('NUMBER OF TITLES')
 
