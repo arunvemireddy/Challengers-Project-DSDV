@@ -28,10 +28,10 @@ $.ajax({
             }
         }
        
-        console.log('map');
-        console.log(map);
+        //('map');
+        //console.log(map);
         const mapSort = new Map([...map.entries()].sort((a, b) => b[1] - a[1]));
-        console.log(mapSort);
+        //console.log(mapSort);
         let newData=[];
         let item={};
         let count=0;
@@ -44,6 +44,6 @@ $.ajax({
                 count=count+1;
             }
         }
-        console.log(newData);
+        //console.log(newData);
     }
 })

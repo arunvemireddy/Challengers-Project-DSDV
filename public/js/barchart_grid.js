@@ -137,8 +137,8 @@ $.ajax({
                     x.range([grid[i].x, grid[i + 1].x - grid_sizes.left_margin - 10])
                 }
                 y.range([grid_sizes.top_margin, grid[0].y])
-                let xAxis = d3.axisBottom(x);
-                let yAxis = d3.axisLeft(y);
+                let xAxis = d3.axisBottom(x)
+                let yAxis = d3.axisLeft(y)
                 let xAxisTicks = x.ticks(5).filter(tick => Number.isInteger(tick))
                 xAxis
                     .tickValues(xAxisTicks)
@@ -146,17 +146,16 @@ $.ajax({
                 gridSVG.append('text').attr('transform', 'translate(' + (grid[i].x + .5 * grid_sizes.plot_width) + ', ' + (grid[i].y - grid_sizes.plot_height - 10) + ')').attr('class', 'subplot-labels').text(top_genres_list[i])
                 gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + 0 + ', ' + grid[i].y + ')').call(xAxis);
                 gridSVG.append('g').attr('class', 'axis').attr('transform', 'translate(' + grid[i].x + ',' + (grid[i].y - grid_sizes.plot_height - grid_sizes.top_margin) + ')').call(yAxis);
-                let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar' + i).attr('transform',
+                let bars = gridSVG.selectAll('.bar' + i).data(bar_data).enter().append('g').attr('class', 'bar bar' + i).attr('transform',
                     d => 'translate(' + grid[i].x + ', ' + (y(d.rating) + vert_spacing) + ')')
                     .on('mouseenter', (e, d) => {
                         let bar = d3.select(e.target);
-                        bar.style('fill', 'blue');
+                        bar.style('fill', 'orange');
                         bar.append('text').attr('class', 'grid-tooltip').text(d[top_genres_list[i]])
                     })
                     .on('mouseleave', e => {
-                        d3.select(e.target).style('fill', 'black')
+                        d3.select(e.target).style('fill', '#9ecae1')
                         d3.select('.grid-tooltip').remove()
-                        //d3.select('#barchart-tooltip').remove()
                     })
                 bars.append('rect').attr('width', d => (x(d[top_genres_list[i]]) - grid[i].x)).attr('height', y.bandwidth())
             }

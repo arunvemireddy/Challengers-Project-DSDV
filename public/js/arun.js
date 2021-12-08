@@ -4,8 +4,8 @@ let height = $('#mapvis').height();
 let fill = d3.scaleLog().range(['white', 'darkblue']);
 let svg = d3.select("#mapvis")
     .append('svg')
-    .attr('width', width+180)
-    .attr('height', height+100);
+    .attr('width', width)
+    .attr('height', height-35);
 let g = svg.append('g');
 
 let new_data = {};
@@ -18,14 +18,14 @@ $.ajax({
     url: '/getCountries',
     success: function (data) {
         for (let i = 0; i < data.length; i++) {
-            if (data[i].country == 'United States') {
+            if (data[i].country === 'United States') {
                 data[i].country = 'united states of america';
             }
            if(data[i].country.includes(",")){
             //    console.log(data[i].country);
                let val = data[i].country.split(",");
                for(let i=0;i<val.length;i++){
-                if (val[i].country == 'United States') {
+                if (val[i].country === 'United States') {
                     val[i].country = 'united states of america';
                 }
                    countries_data.push(val[i].trim().toLowerCase());
@@ -35,30 +35,32 @@ $.ajax({
            }
         }
 
+        //console.log(countries_data)
+
         let new_map = new Map();
         for (let i = 0; i < data.length; i++) {
             data[i].country = data[i].country.trim().toLowerCase();
-            if (data[i].country == 'United States') {
+            if (data[i].country === 'United States') {
                 data[i].country = 'united states of america';
             }
            if(data[i].country.includes(",")){
               // console.log(data[i].country);
                let val = data[i].country.split(",");
                for(let i=0;i<val.length;i++){
-                if (val[i].country == 'United States') {
-                    val[i].country = 'united states of america';
+                if (val[i].trim() === 'United States') {
+                    val[i] = 'united states of america';
                 }
-                   if(new_map.get(val[i].country)==undefined){
-                    new_map.set(val[i].country,1);
+                   if(new_map.get(val[i].trim())===undefined){
+                    new_map.set(val[i].trim(),1);
                    }else{
-                       v = new_map.get(val[i].country);
+                       v = new_map.get(val[i].trim());
                        v=v+1;
-                       new_map.set(val[i].country,v);
+                       new_map.set(val[i].trim(),v);
                    }
                    
                }
            }else{
-            if(new_map.get(data[i].country)==undefined){
+            if(new_map.get(data[i].country)===undefined){
                     new_map.set(data[i].country,1);
                }else{
                    v = new_map.get(data[i].country);
@@ -68,7 +70,7 @@ $.ajax({
            }
         }
 
-       // console.log(new_map);
+       //console.log(new_map);
         let mdata=[];
         let item={};
         new_map.forEach((val,key)=>{
@@ -79,15 +81,22 @@ $.ajax({
 
         })
         //console.log(mdata)
-        var colorScale = d3.scaleThreshold()
-                           .domain([d3.min(mdata,d=>d.value),d3.max(mdata,d=>d.value)])
-                           // .domain([-110,1000])
-                            .range(d3.schemeBlues[7]);
+        let colors = d3.schemeBlues[9]
+        colors = colors.slice(1)
+        //console.log(colors)
+        colors = ['#deebf7', '#9ecae1', '#2171b5', '#08306b']
+        let fill = d3.scaleQuantile().range(colors)
+        let min = d3.min(mdata,d=>d.value)
+        let max = d3.max(mdata,d=>d.value)
+        fill.domain([min,max])
+        // var colorScale = d3.scaleThreshold()
+        //                    .domain([d3.min(mdata,d=>d.value),d3.max(mdata,d=>d.value)])
+        //                    // .domain([-110,1000])
+        //                     .range(d3.schemeBlues[7]);
         
 
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
         .then(function (map) {
-
             let Tooltip = d3.select("#mapvis")
             .append("span")
             .attr("class", "tooltip")
@@ -122,34 +131,41 @@ $.ajax({
                     .enter().append('path')
                     .attr('d', path)
                     .attr('stroke', 'black')
-                    .style('fill', function (d) {
-                        d.properties.name = d.properties.name.toLowerCase();
-                        if (countries_data.includes(d.properties.name.toString())) {
-                           //return colorScale(new_map.get(d.properties.name));
-                           return 'rgb(52, 235, 229)';
+                    .attr('id', d => d.properties.name.toLowerCase())
+                    .style('color', function (d) {
+                        let name = d.properties.name.toLowerCase();
+                        if (countries_data.includes(name.toString())) {
+                            //return colorScale(new_map.get(d.properties.name));
+                            //return 'rgb(52, 235, 229)';
+                            return fill(new_map.get(name))
                         } else {
                             return 'white';
                         }
                     })
+                    .style('fill', function(d) {
+                        return document.getElementById(d.properties.name.toLowerCase()).style.color
+                    })
                     .on('click', function (e, d) {
-                        if (countries_data.includes(e.target.__data__.properties.name)) {
-                            d3.selectAll('.countryClass').style('fill', function(){
-                                //return colorScale(new_map.get(d.properties.name));
-                                return 'rgb(52, 235, 229)';
-                            });
+                        let name = e.target.__data__.properties.name.trim().toLowerCase()
+                        if (new_map.get(name) !== undefined) {
+                            d3.selectAll('.countryClass').each(function(d) {
+                                d3.select(this).style('fill', function(d) {
+                                    return document.getElementById(this.id).style.color
+                                })
+                            })
                             d3.select(this).style('fill', 'orange').attr('class', 'countryClass');
                             //console.log(this.style.fill);
                         }
                     
                         document.getElementById('country').value = e.target.__data__.properties.name;
 
-                        if(this.style.fill=='orange'){
+                        if(this.style.fill==='orange'){
                             barChart();
                             piedata(e.target.__data__.properties.name);
                             Linechart();
                             $('input[id=radi]').prop('checked', true);
                         }else{
-                            alert('please select colored countries');
+                            alert('There is no data for the selected country. Please select a colored country.');
                         }
                     })
                     .on('mouseover',function(e,d){
@@ -220,7 +236,7 @@ function piedata(value) {
 
 //pie chart
 function piechart(ndata) {
-    console.log(ndata);
+    //console.log(ndata);
     if(ndata.length>0){
     let data=[];
     let pie_margin ={top:20,right:20,left:45,bottom:30};
@@ -272,10 +288,10 @@ function piechart(ndata) {
         .attr('class','rectangle')
         .attr('fill',function(d){
             if(select_type===d.key){
-                return 'red';
+                return 'orange';
             }
             else{
-                return 'black';
+                return '#9ecae1';
             }
         })
         .attr('x',d=>xScale(d.key)+40)
@@ -283,8 +299,8 @@ function piechart(ndata) {
         .attr('width',xScale.bandwidth()-80)
         .attr("height",d=>pie_height-yScale(d.value))
         .on('click',function(e,i){
-            d3.selectAll('.rectangle').attr('fill','black');
-            d3.select(this).attr('fill','red');
+            d3.selectAll('.rectangle').attr('fill','#9ecae1');
+            d3.select(this).attr('fill','orange');
             select_type=i.key;
             //console.log(select_type);
             Linechart();
@@ -362,9 +378,9 @@ function Linechart(){
                 .attr('transform',"translate("+margin.left+" "+margin.top+")");
         
     let xScale = d3.scaleTime().range([0,width-120]);
-    let yScale = d3.scaleLinear().range([height,0]);
+    let yScale = d3.scaleLinear().range([height,30]);
 
-    svg.append('text').text('Ratings').attr('fill','black').attr('x',(width/2)-100).attr('y',10);
+    svg.append('text').text('Ratings By Release Year').attr('class', 'ratings-label').attr('x',(width/2)-margin.left).attr('y',10);
 
     $.ajax({
         method: 'post',
@@ -376,8 +392,8 @@ function Linechart(){
             let ob = [];
             let ty='rating';
             let movieortv =select_type;
-            console.log('movieortv');
-            console.log(movieortv);
+            //console.log('movieortv');
+            //console.log(movieortv);
        
                 for(let i=0;i<data.length;i++){
                     
@@ -406,7 +422,7 @@ function Linechart(){
                  }
 
             
-            console.log(ob);
+            //console.log(ob);
              let item={};
             let new_data=[];
             Object.entries(ob).forEach(d=>{
@@ -417,7 +433,7 @@ function Linechart(){
                 new_data.push(item);
                 item={};
             })
-            let color = d3.scaleOrdinal().range(['rgb(255,0,0)','green','yellow','white','black','brown','orange','blue','steelblue',
+            let color = d3.scaleOrdinal().range(['rgb(255,0,0)','green','yellow','grey','black','brown','orange','blue','steelblue',
             'rgb(168, 50, 168)','rgb(0, 255, 242)','rgb(119, 0, 255)','rgb(81, 255, 0)','rgb(255, 0, 136)']);
            
          
@@ -449,6 +465,7 @@ function Linechart(){
                 .attr('class','label')
                 .attr('transform','rotate(-90)')
                 .attr('y',15)
+                .attr('x', -30)
                 .text(yLabel)
                 .attr('class','texLabel');
 
@@ -467,7 +484,7 @@ function Linechart(){
                                 .data(color.domain())
                                 .enter().append('g')
                                 .attr('class','legend');
-                legend.attr('transform',(d,i)=>'translate('+30+','+15*i+')');
+                legend.attr('transform',(d,i)=>'translate('+30+','+(30 + 15*i)+')');
                 legend.append("rect").attr('width',10).attr('height',10).style('fill',d=>color(d)).attr('class',d=>d);
                 legend.append('text').text(d=>d).attr('x',15).attr('y',10).style('fill','black');
                 }

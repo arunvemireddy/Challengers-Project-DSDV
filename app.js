@@ -58,7 +58,7 @@ app.get('/getCountries',(req,res)=>{
 
 app.post('/getBarData',(req,res)=>{
     let country = req.body.country;
-    if(country==='united states of america'){
+    if(country==='United States of America'){
         country='United States';
     }
     if(country !== null) {
@@ -83,7 +83,7 @@ app.post('/getBarData',(req,res)=>{
 // get country details from database - arun
 app.post('/getCountryData',(req,res)=>{
     value=req.body.country;
-    if(value=='united states of america'){
+    if(value==='United States of America'){
         value='United States';
     }
     console.log(value)
@@ -95,7 +95,7 @@ app.post('/getCountryData',(req,res)=>{
 
 app.post('/getCountryDataRatings',(req,res)=>{
     value=req.body.country;
-    if(value=='united states of america'){
+    if(value==='United States of America'){
         value='United States';
     }
     console.log(value)

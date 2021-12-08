@@ -2,6 +2,10 @@ h1{
     color: #2472b5;
 }
 
+body {
+    background: white;
+}
+
 /* #mapvis{
     width: 50%;
     float: left;
@@ -54,40 +58,51 @@ h1{
 body,html{
     height: 100%;
 }
-.topleft{
+.map-div{
     width: 35%;
-    height: 45%;
+    height: 50%;
     float: left;
-    background-color: antiquewhite;
+    background: #f7f7f7;
 }
-.toprightone{
+.type-bar-div{
     width: 15%;
-    height: 45%;
+    height: 50%;
     float:left;
-    background-color: rgb(230, 209, 179);
+    background: #f3f3f3;
 }
-.toprighttwo{
+.grid-div{
     float: right;
     height:60%;
     width:50%;
-    background-color:#8f8f8f;
+    background:#f7f7f7;
 }
-.bottomtwoleft{
+.line-div{
     float: left;
-    height:55%;
+    height:50%;
     width:50%;
-    background-color:rgb(155, 195, 218)
+    background: #fcfcfc;
+}
+
+.cast-bar-div {
+    width:50%;
+    height:40%;
+    background: #f3f3f3;
 }
 
 #barchart{
     float: right;
     height:40%;
     width:50%;
-    background-color:rgb(231, 144, 128)
 }
 
 #linechart{
     margin: 0 auto;
     width:50%;
    
+}
+
+.ratings-label {
+    fill: black;
+    font-size: 22px;
+    text-anchor: middle;
 }

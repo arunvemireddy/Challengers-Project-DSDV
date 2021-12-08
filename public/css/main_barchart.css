@@ -3,11 +3,7 @@ body {
 }
 .bar {
     text-align: center;
-    fill: black;
-}
-
-.bar-highlight {
-    fill: teal;
+    fill: #9ecae1;
 }
 
 .bar-label-hidden {
@@ -17,18 +13,18 @@ body {
 
 .bar-label {
     visibility: visible;
-    fill: black;
     text-anchor: middle;
+    fill: black;
 }
 
 .xlabel {
-    fill:black;
+    fill: black;
     font-size: 22px;
     text-anchor: middle;
 }
 
 .ylabel {
-    fill:black;
+    fill: black;
     font-size: 22px;
     transform: rotate(-90deg);
     text-anchor: middle;
@@ -42,6 +38,7 @@ body {
 .subplot-labels {
     text-anchor: middle;
     font-size: 18px;
+    fill: black;
 }
 
 .axis {
@@ -52,7 +49,7 @@ body {
     visibility: visible;
     text-anchor: start;
     border-radius: 5px;
-    fill:white;
+    fill:black;
     font-size: 22px;
 }
 
