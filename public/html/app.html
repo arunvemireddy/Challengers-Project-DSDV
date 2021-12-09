@@ -33,9 +33,9 @@
     <div class="line-div" id="linechart"></div>
     <div class="cast-bar-div" id="barchart">
         <label>Director</label>
-        <input type="radio" name="radio" value="director">
+        <input type="radio" name="radio" id='director' value="director" onclick='updatebarChartDirector(this.value)' checked>
         <label>Cast</label>
-        <input type="radio" name="radio" value="cast">
+        <input type="radio" name="radio" id='cast' value="cast" onclick="updatebarChartDirector(this.value)">
         </label>
     </div>
     

@@ -201,6 +201,7 @@ $.ajax({
                             barChart();
                             piedata(e.target.__data__.properties.name);
                             Linechart();
+                            updatebarChartDirector();
                             $('input[id=radi]').prop('checked', true);
                         }else{
                             alert('There is no data for the selected country. Please select a colored country.');
