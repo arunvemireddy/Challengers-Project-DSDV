@@ -96,14 +96,14 @@ $.ajax({
             fillRange.push(legendWidth/colors.length*i);
         }
         let axisScale = d3.scaleQuantile().range(fillRange);
-        let diff = (max-min)/colors.length;
+        let diff = Math.round((max-min)/colors.length);
         let LegendScale = [];
         for(let i=0;i<=colors.length;i++){
-            LegendScale.push(diff*(i+1)+min);
+            LegendScale.push(diff*(i)+min);
         }
-        
-        axisScale.domain(LegendScale);
-        let legendaxis = d3.axisBottom(axisScale).tickFormat(x=>x.toFixed(1));
+        axisScale.domain(LegendScale)
+        let legendaxis = d3.axisBottom(axisScale).tickFormat(d3.format('.0f'));
+        legendaxis.ticks(LegendScale)
         let legend = svg.selectAll('.legend').data(colors)
                             .enter()
                             .append('g')
@@ -177,7 +177,7 @@ $.ajax({
                         if (countries_data.includes(name.toString())) {
                             return 1;
                         } else {
-                            return 0;
+                            return '30%';
                         }
                     })
                     .style('fill', function(d) {
@@ -201,8 +201,7 @@ $.ajax({
                             barChart();
                             piedata(e.target.__data__.properties.name);
                             Linechart();
-                            updatebarChartDirector();
-                            $('input[id=radi]').prop('checked', true);
+                            updatebarChartDirector($('input[name=radio]:checked').val());
                         }else{
                             alert('There is no data for the selected country. Please select a colored country.');
                         }
@@ -341,6 +340,7 @@ function piechart(ndata) {
             select_type=i.key;
             Linechart();
             barChart();
+            updatebarChartDirector($('input[name=radio]:checked').val());
         })
         .on('mouseover',function(e,i){
             pie_svg.append('text').attr('class','pietext').text(i.value).attr('x',p=>pie_xScale(i.key)+40).attr('y',q=>pie_yScale(i.value)).style('fill','black');
