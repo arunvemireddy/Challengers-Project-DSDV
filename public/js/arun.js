@@ -81,14 +81,43 @@ $.ajax({
 
         })
         //console.log(mdata)
-        let colors = d3.schemeBlues[9]
-        colors = colors.slice(1)
+        //let colors = d3.schemeBlues[9]
+        //colors = colors.slice(1)
         //console.log(colors)
-        colors = ['#deebf7', '#9ecae1', '#2171b5', '#08306b']
+        let colors = ['#BCD2E8', '#91BAD6', '#73A5C6', '#528AAE','#2E5984','#1E3F66']
         let fill = d3.scaleQuantile().range(colors)
-        let min = d3.min(mdata,d=>d.value)
-        let max = d3.max(mdata,d=>d.value)
+        let min = d3.min(mdata,d=>d.value);
+        let max = d3.max(mdata,d=>d.value);
         fill.domain([min,max])
+        let legendWidth = width-40;
+        let legendHeight = 20;
+        let fillRange = [];
+        for(let i=0;i<=colors.length;i++){
+            fillRange.push(legendWidth/colors.length*i);
+        }
+        let axisScale = d3.scaleQuantile().range(fillRange);
+        let diff = (max-min)/colors.length;
+        let LegendScale = [];
+        for(let i=0;i<=colors.length;i++){
+            LegendScale.push(diff*(i+1)+min);
+        }
+        
+        axisScale.domain(LegendScale);
+        let legendaxis = d3.axisBottom(axisScale).tickFormat(x=>x.toFixed(1));
+        let legend = svg.selectAll('.legend').data(colors)
+                            .enter()
+                            .append('g')
+                            .attr('transform','translate('+ (width / 2 - legendWidth / 2) + ", " + (height - 40) + ")")
+        legend.append('rect').attr('width',legendWidth/colors.length)
+                                .attr('height',legendHeight)
+                                .style('fill',d=>d)
+                                .attr('x',(d,i)=>legendWidth/colors.length*i)
+                                .attr('y',-40);
+        svg.append("g").attr("class", "axis")
+        .attr("transform", "translate(" + ((width / 2) - (legendWidth/2)) + ", " + (height-60) + ")")
+        .call(legendaxis);
+
+        
         // var colorScale = d3.scaleThreshold()
         //                    .domain([d3.min(mdata,d=>d.value),d3.max(mdata,d=>d.value)])
         //                    // .domain([-110,1000])
@@ -141,6 +170,14 @@ $.ajax({
                             return fill(new_map.get(name))
                         } else {
                             return 'white';
+                        }
+                    })
+                    .style('opacity', function (d) {
+                        let name = d.properties.name.toLowerCase();
+                        if (countries_data.includes(name.toString())) {
+                            return 1;
+                        } else {
+                            return 0;
                         }
                     })
                     .style('fill', function(d) {
