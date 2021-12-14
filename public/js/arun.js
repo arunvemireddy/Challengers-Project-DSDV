@@ -34,14 +34,14 @@ $.ajax({
             }
         }
 
-         let new_map = new Map();
-        for(let i=0;i<countries_data.length;i++){
-            if(new_map.get(countries_data[i])==undefined){
-                new_map.set(countries_data[i],1);
-            }else{
+        let new_map = new Map();
+        for (let i = 0; i < countries_data.length; i++) {
+            if (new_map.get(countries_data[i]) == undefined) {
+                new_map.set(countries_data[i], 1);
+            } else {
                 let val = new_map.get(countries_data[i]);
-                val = val+1;
-                new_map.set(countries_data[i],val);
+                val = val + 1;
+                new_map.set(countries_data[i], val);
             }
         }
 
@@ -92,17 +92,7 @@ $.ajax({
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
             .then(function (map) {
                 let Tooltip = d3.select("#mapvis")
-                    .append("span")
-                    .style("opacity", 1)
-                    .style('color', 'rgb(255, 0, 0)')
-                    .style('font-weight', 'bolder')
-                    .style("background-color", "none")
-                    .style("border", "solid")
-                    .style("border-width", "0px")
-                    .style("border-radius", "0px")
-                    .style("padding", "5px")
-                    .style('display', 'inline')
-                    .style('position', 'absolute')
+                    .append("span").attr('class', 'mapTooltip');
 
                 nc = topojson.feature(map, map.objects.countries);
                 let projection = d3.geoMercator()
