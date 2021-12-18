@@ -8,8 +8,7 @@ const MongoClient = require('mongodb').MongoClient;
 const client = new MongoClient(url);
 let collection;
 
-app.use(express.static('front-end/arun'));
-app.use(express.static('front-end/mitch'));
+
 app.use(express.static('/'));
 app.use(express.static('public'));
 app.use(express.json());
@@ -25,7 +24,7 @@ client.connect(function (err){
     })
 });
 
-// mapvis - arun
+// mapvis api
 app.get('/map',function(req,res){
     fs.readFile("front-end/arun/arun.html",(err,data)=>{
     res.writeHead(200,{"Content-Type":"text/html"});
@@ -33,12 +32,6 @@ app.get('/map',function(req,res){
     })
 })
 
-app.get('/bar',function(req,res){
-    fs.readFile("mitch.html",(err,data)=>{
-        res.writeHead(200,{"Content-Type":"text/html"});
-        res.end(data);
-    })
-})
 
 app.get('/barchart_grid.js', (req, res) => {
     fs.readFile('js/barchart_grid.js', (err, data) => {
@@ -48,14 +41,14 @@ app.get('/barchart_grid.js', (req, res) => {
     })
 })
 
-// get countries from database - arun
+// get countries from database 
 app.get('/getCountries',(req,res)=>{
     collection.find({},{}).toArray(function(e,r){
       if(e) throw e;
       res.send(r);
     })
 });
-
+// api call for barchart grid
 app.post('/getBarData',(req,res)=>{
     let country = req.body.country;
     if(country==='United States of America'){
@@ -80,7 +73,7 @@ app.post('/getBarData',(req,res)=>{
     }
 });
 
-// get country details from database - arun
+// get country details from database
 app.post('/getCountryData',(req,res)=>{
     value=req.body.country;
     if(value==='United States of America'){
@@ -93,6 +86,7 @@ app.post('/getCountryData',(req,res)=>{
     })
 });
 
+// api call for ratings in line chart
 app.post('/getCountryDataRatings',(req,res)=>{
     value=req.body.country;
     if(value==='United States of America'){
@@ -105,17 +99,7 @@ app.post('/getCountryDataRatings',(req,res)=>{
       })
 });
 
-
-
-// get countries from database - arun
-// app.get('/getCountriesLine',(req,res)=>{
-//     collection.aggregate([{$group:{_id:{type:"$type",$year:new Date("$date_added")}}},{"$project":{"type":1,"date_added":1}}]).toArray(function(e,r){
-//       if(e) throw e;
-//       res.send(r);
-//     })
-// });
-
-//app.html
+// send html file back
 app.get('/',function(req,res){
     fs.readFile("public/html/app.html",(err,data)=>{
     res.writeHead(200,{"Content-Type":"text/html"});

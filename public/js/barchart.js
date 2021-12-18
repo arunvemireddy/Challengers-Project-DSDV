@@ -1,6 +1,7 @@
-let bar_margin = {top: 20, right: 20, left: 120, bottom: 40};
-let bar_width = $('#barchart').width()-bar_margin.left - bar_margin.right;
-let bar_height = $('#barchart').height() - bar_margin.top - bar_margin.bottom;
+// creating the svg axis
+let bar_margin = {top: 20, right: 20, left: 120, bottom: 40};  // giving the margin for the bar chart
+let bar_width = $('#barchart').width()-bar_margin.left - bar_margin.right; // giving the width
+let bar_height = $('#barchart').height() - bar_margin.top - bar_margin.bottom; //giving the height
 let bar_svg = d3.select("#barchart")
              .append('svg')
             .attr('width', bar_width+bar_margin.left+bar_margin.right)
@@ -8,18 +9,22 @@ let bar_svg = d3.select("#barchart")
             // .append('g').attr("transform", "translate(" + bar_margin.left + "," + bar_margin.top + ")");
 let bar_xScale,bar_yScale,bar_xAxis,bar_yaxis;
 
+//top 10 directors code
 barChartDirector();
 function barChartDirector(){
     let country = document.getElementById('country').value;
+
+    // API call ajax
 $.ajax({
     method: 'post',
-    url: '/getCountryData',
+    url: '/getCountryData', // importing the data from mongoDB
     data: JSON.stringify({ 'country': country }),
     dataType: 'json',
     contentType: 'application/json',
     success: function (data) {
         let bar_map = new Map();
 
+// sorting the array list
         for (let i = 0; i < data.length; i++) {
             if (data[i].director != undefined) {
                 if(data[i].director.includes(",")) {
@@ -48,7 +53,7 @@ $.ajax({
 
             }
         }
-        
+        //preparing the data to get the top 10 directors
         const mapSort = new Map([...bar_map.entries()].sort((a, b) => b[1] - a[1]));
         //console.log(mapSort);
         let newData=[];
@@ -63,9 +68,9 @@ $.ajax({
                 count=count+1;
             }
         }
-        bar_xScale = d3.scaleLinear()
+        bar_xScale = d3.scaleLinear() //forming the x axis
             .range([bar_margin.left,bar_width+bar_margin.left]);
-        bar_yScale = d3.scaleBand()
+        bar_yScale = d3.scaleBand() // forming the y axis
             .range([0,bar_height])
             .padding(0.1);
         bar_xScale.domain([0, d3.max(newData, (d) => d.value)]);
@@ -73,12 +78,13 @@ $.ajax({
 
         bar_xAxis = d3.axisBottom(bar_xScale);
         bar_yAxis = d3.axisLeft(bar_yScale);
-        let tickValues = bar_xScale.ticks().filter(tick => {
+        let tickValues = bar_xScale.ticks().filter(tick => {  //giving the ticks to the x scale
             return (((tick*10) % 10) === 0)
         })
         bar_xAxis.tickValues(tickValues)
             .tickFormat(d3.format('.0f'))
 
+// Creating the bars and transforming them into the horizontal axis
         bar_svg.append("g").attr('id','barxAxis').attr("transform", "translate(0," + bar_height + ")").call(bar_xAxis)
         bar_svg.append("g").attr('id','baryAxis').attr("transform", "translate("+ bar_margin.left+",0)").call(bar_yAxis);
 
@@ -94,9 +100,10 @@ $.ajax({
 function updatebarChartDirector(value){
     let country = document.getElementById('country').value;
     if(value != 'cast'){
+        //API call ajax
         $.ajax({
             method: 'post',
-            url: '/getCountryData',
+            url: '/getCountryData',// importing the data from mongoDB
             data: JSON.stringify({ 'country': country }),
             dataType: 'json',
             contentType: 'application/json',
@@ -104,6 +111,7 @@ function updatebarChartDirector(value){
                 let type = select_type;
                 let bar_map = new Map();
 
+                // sorting the data in the array list
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].type === type || type === undefined) {
                         if (data[i].director !== undefined) {
@@ -149,11 +157,11 @@ function updatebarChartDirector(value){
                     }
                 }
                 //bar_xScale.domain([d3.min(newData,d=>d.value),d3.max(newData,d=>d.value)]);
-                bar_xScale.domain([0, d3.max(newData, (d) => d.value)]);
+                bar_xScale.domain([0, d3.max(newData, (d) => d.value)]); // giving the domain which is x scale
                 let tickValues = bar_xScale.ticks().filter(tick => {
                     return (((tick*10) % 10) === 0)
                 })
-                bar_xAxis.tickValues(tickValues)
+                bar_xAxis.tickValues(tickValues) // Giving the tick values on the axis
                     .tickFormat(d3.format('.0f'))
                 d3.select('#barxAxis').call(bar_xAxis);
                 bar_yScale.domain(newData.map(d=>d.key));
@@ -185,17 +193,18 @@ function updatebarChartDirector(value){
             }
             })
     }else{
-    
+//Top 10 cast code
+    //API call ajax
         $.ajax({
             method: 'post',
-            url: '/getCountryData',
+            url: '/getCountryData', // getting the data from mongoDB
             data: JSON.stringify({ 'country': country }),
             dataType: 'json',
             contentType: 'application/json',
             success: function (data) {
                 let type = select_type;
                 let bar_map = new Map();
-
+// sorting the array list
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].type === type || type === undefined) {
                         if (data[i].cast != undefined) {
@@ -226,7 +235,7 @@ function updatebarChartDirector(value){
                     }
                 }
                
-                
+                // preparing the data for top 10 cast
                 const mapSort = new Map([...bar_map.entries()].sort((a, b) => b[1] - a[1]));
                 //console.log(mapSort);
                 let newData=[];
@@ -246,12 +255,13 @@ function updatebarChartDirector(value){
                 let tickValues = bar_xScale.ticks().filter(tick => {
                     return (((tick*10) % 10) === 0)
                 })
-                bar_xAxis.tickValues(tickValues)
+                bar_xAxis.tickValues(tickValues) //giving the tick values on the x axis
                     .tickFormat(d3.format('.0f'))
                 d3.select('#barxAxis').call(bar_xAxis);
                 bar_yScale.domain(newData.map(d=>d.key));
                 d3.select("#baryAxis").call(bar_yAxis);
 
+                //creating the bars and transforming them
                 bar_svg.selectAll('.bar')
                     .data(newData)
                     .join(

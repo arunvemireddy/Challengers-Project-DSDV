@@ -106,3 +106,16 @@ body,html{
     font-size: 22px;
     text-anchor: middle;
 }
+
+.mapTooltip{
+    opacity: 1;
+    color: rgb(255, 0, 0);
+    font-weight:bolder;
+    background-color: none;
+    border:solid;
+    border-width: 0px;
+    border-radius: 0px;
+    padding:5px;
+    display:inline;
+    position:absolute;
+}

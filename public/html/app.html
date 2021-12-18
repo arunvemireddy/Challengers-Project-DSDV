@@ -20,12 +20,8 @@
     <div class="map-div" id="mapvis">
         <label class="country">Country</label>
         <input type="text" id="country" disabled>
+        <!---reset button to refresh the page-->
         <input type="button" onclick='location.reload()' value="Reset" class="btn">
-        <!-- <label>Movie</label>
-        <input type="radio" name="radio" value="type">
-        <label>TV Shows</label>
-        <input type="radio" name="radio" value="rating">
-        </label> -->
     </div>
     
     <div class="type-bar-div" id="pievis"></div>
@@ -33,6 +29,7 @@
     <div class="line-div" id="linechart"></div>
     <div class="cast-bar-div" id="barchart">
         <div style="padding-top: 10px">
+            <!--Radio button to choose either director or cast in bar chart-->
             <label>Director</label>
             <input type="radio" name="radio" id='director' value="director" onclick='updatebarChartDirector(this.value)' checked>
             <label>Cast</label>
