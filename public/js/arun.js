@@ -402,7 +402,7 @@ function Linechart(){
     let xScale = d3.scaleTime().range([0,width-120]);
     let yScale = d3.scaleLinear().range([height,30]);
 
-    svg.append('text').text('Ratings By Release Year').attr('class', 'ratings-label').attr('x',(width/2)-margin.left).attr('y',10);
+    svg.append('text').text('Ratings By Date Added').attr('class', 'ratings-label').attr('x',(width/2)-margin.left).attr('y',10);
 
     $.ajax({
         method: 'post',
@@ -420,7 +420,7 @@ function Linechart(){
                 for(let i=0;i<data.length;i++){
                     
                     data[i].date_added = new Date(data[i].date_added).getFullYear();
-                    if(!isNaN(data[i].date_added)){
+                    if(!isNaN(data[i].release_year)){
                         if(movieortv==data[i].type){
                         if(ob[[data[i].date_added,data[i].rating]]==undefined){
                             ob[[data[i].date_added,data[i].rating]]=1;
