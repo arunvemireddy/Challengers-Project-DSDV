@@ -1,4 +1,7 @@
 
+//there are total 3 design elements are developed in the file linechart, content type bar chart, choropleth world map
+
+//creating layout for choropleth world map
 let width = $('#mapvis').width();
 let height = $('#mapvis').height();
 let fill = d3.scaleLog().range(['white', 'darkblue']);
@@ -12,7 +15,8 @@ let new_data = {};
 let countries_data = [];
 let select_type;
 
-
+//making ajax api call to get all the data from the database
+//so that color code is added to the map by default
 $.ajax({
     method: 'get',
     url: '/getCountries',
@@ -33,7 +37,7 @@ $.ajax({
                 countries_data.push(data[i].country.trim().toLowerCase());
             }
         }
-
+//processing the data, counting number of titles that each country has
         let new_map = new Map();
         for (let i = 0; i < countries_data.length; i++) {
             if (new_map.get(countries_data[i]) == undefined) {
@@ -54,7 +58,7 @@ $.ajax({
             item = [];
 
         })
-
+        // color choose for choropleth world map
         let colors = ['#BCD2E8', '#91BAD6', '#73A5C6', '#528AAE', '#2E5984', '#1E3F66']
         let fill = d3.scaleQuantile().range(colors)
         let min = d3.min(mdata, d => d.value);
@@ -79,6 +83,7 @@ $.ajax({
             .enter()
             .append('g')
             .attr('transform', 'translate(' + (width / 2 - legendWidth / 2) + ", " + (height - 40) + ")")
+        // creating legends for the choropleth world map
         legend.append('rect').attr('width', legendWidth / colors.length)
             .attr('height', legendHeight)
             .style('fill', d => d)
@@ -88,7 +93,7 @@ $.ajax({
             .attr("transform", "translate(" + ((width / 2) - (legendWidth / 2)) + ", " + (height - 60) + ")")
             .call(legendaxis);
 
-
+        //designing chropleth world map using d3 library
         d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
             .then(function (map) {
                 let Tooltip = d3.select("#mapvis")
@@ -193,7 +198,8 @@ $.ajax({
 
 })
 
-
+// this function is used for the content type barchart unlike the name suggests, because initially pie chart was developed ended up not a good idea
+//change to the vertical bar chart
 piedata();
 function piedata(value) {
     $.ajax({
@@ -229,7 +235,7 @@ function piedata(value) {
     })
 }
 
-
+// with help of d3 library a vertical bar chart developed in the function for the content type bar chart
 function piechart(ndata) {
     if (ndata.length > 0) {
         let pie_margin = { top: 20, right: 20, left: 45, bottom: 30 };
@@ -253,7 +259,7 @@ function piechart(ndata) {
 
         let pie_xAxis = d3.axisBottom(pie_xScale);
         let pie_yAxis = d3.axisLeft(pie_yScale);
-
+       //creating x axis 
         pie_svg.append('g')
             .attr("transform", "translate(" + 0 + "," + (pie_height) + ")")
             .attr('id', 'xAxis')
@@ -264,7 +270,7 @@ function piechart(ndata) {
             .attr('x', pie_width)
             .attr('y', 15)
             .text(pie_xLabel).attr('fill', 'black');
-
+        // creating y axis
         pie_svg.append('g')
             .call(pie_yAxis)
             .append('text')
@@ -272,7 +278,7 @@ function piechart(ndata) {
             .attr('transform', 'rotate(-90)')
             .attr('y', 15).text(pie_yLabel).attr('fill', 'black');
 
-
+       // creating movie and tv show bars in the bar chart
         pie_svg.selectAll('rect')
             .data(ndata)
             .enter()
@@ -290,6 +296,7 @@ function piechart(ndata) {
             .attr('y', d => pie_yScale(d.value))
             .attr('width', pie_xScale.bandwidth() - 80)
             .attr("height", d => pie_height - pie_yScale(d.value))
+            // click function in the bar chart to choose either movie bar or tv show bar
             .on('click', function (e, i) {
                 d3.selectAll('.rectangle').attr('fill', '#9ecae1');
                 d3.select(this).attr('fill', 'orange');
@@ -309,7 +316,7 @@ function piechart(ndata) {
 
 
 Linechart();
-
+// In this function line chart is developed
 function Linechart() {
     document.getElementById('linechart').innerHTML = "";
     let value = document.getElementById('country').value;
@@ -318,6 +325,7 @@ function Linechart() {
     let margin = { top: 20, right: 20, left: 45, bottom: 30 };
     let width = $('#linechart').width() - margin.top - margin.bottom;
     let height = $('#linechart').height() - margin.left - margin.right;
+    // creating svg for the line chart, where dynamic width and height are used
     let svg = d3.select('#linechart')
         .append('svg')
         .attr('width', width - margin.left - margin.right)
@@ -330,6 +338,7 @@ function Linechart() {
 
     svg.append('text').text('Ratings By Date Added').attr('class', 'ratings-label').attr('x', (width / 2) - margin.left).attr('y', 10);
 
+    // making back end call using ajax - post request
     $.ajax({
         method: 'post',
         url: '/getCountryData',
@@ -354,7 +363,7 @@ function Linechart() {
                             ob[[data[i].date_added, data[i].rating]] = val;
                         }
                     }
-
+                    // counting number of ratings titles added in the netflix
                     if (movieortv == undefined) {
                         if (ob[[data[i].date_added, data[i].rating]] == undefined) {
                             ob[[data[i].date_added, data[i].rating]] = 1;
@@ -377,6 +386,7 @@ function Linechart() {
                 new_data.push(item);
                 item = {};
             })
+            // adding color legends to the lines in the line charts
             let color = d3.scaleOrdinal().range(['rgb(255,0,0)', 'green', 'yellow', 'grey', 'black', 'brown', 'orange', 'blue', 'steelblue',
                 'rgb(168, 50, 168)', 'rgb(0, 255, 242)', 'rgb(119, 0, 255)', 'rgb(81, 255, 0)', 'rgb(255, 0, 136)']);
 
@@ -391,7 +401,7 @@ function Linechart() {
             );
             let countline = d3.line().x(function (d) { return xScale(new Date(d.year)); }).y(function (d) { return yScale(d.count); });
 
-
+            // creating x and y axis
             svg.append('g')
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis).attr('class', 'xAxisLine')
@@ -413,7 +423,7 @@ function Linechart() {
                 .text(yLabel)
                 .attr('class', 'texLabel');
 
-
+            // adding lines to the line chart
             dataNest.forEach(function (d, i) {
                 svg.append('path')
                     .attr('fill', 'none')
@@ -424,6 +434,8 @@ function Linechart() {
                     .attr('d', countline(d.value))
 
             });
+
+            // adding legends to the line chart
             let legend = svg.selectAll(".legend")
                 .data(color.domain())
                 .enter().append('g')
