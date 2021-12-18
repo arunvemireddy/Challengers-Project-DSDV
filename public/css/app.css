@@ -4,19 +4,8 @@ h1{
 
 body {
     background: #f7f7f7;
+    text-align: center;
 }
-
-/* #mapvis{
-    width: 50%;
-    float: left;
-    
-} */
-
-/* #pievis{
-    width: 70%;
-    margin: 0px auto;
-    padding-top: 50px;
-} */
 
 #movie{
     color: red;
@@ -118,4 +107,61 @@ body,html{
     padding:5px;
     display:inline;
     position:absolute;
+}
+
+.bar {
+    text-align: center;
+    fill: #9ecae1;
+}
+
+.bar-label-hidden {
+    visibility: hidden;
+    fill: black;
+}
+
+.bar-label {
+    visibility: visible;
+    text-anchor: middle;
+    fill: black;
+}
+
+.xlabel {
+    fill: black;
+    font-size: 22px;
+    text-anchor: middle;
+}
+
+.ylabel {
+    fill: black;
+    font-size: 22px;
+    transform: rotate(-90deg);
+    text-anchor: middle;
+}
+
+.tooltip {
+    position: absolute;
+    visibility: hidden;
+}
+
+.subplot-labels {
+    text-anchor: middle;
+    font-size: 18px;
+    fill: black;
+}
+
+.axis {
+    font-size: 9.5px;
+}
+
+.grid-tooltip {
+    visibility: visible;
+    text-anchor: start;
+    border-radius: 5px;
+    fill:black;
+    font-size: 22px;
+}
+
+.no-data-label {
+    font-size:50px;
+    text-anchor: middle;
 }

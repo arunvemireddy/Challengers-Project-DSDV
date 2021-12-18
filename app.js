@@ -20,7 +20,6 @@ client.connect(function (err){
     console.log("connected to db");
     db = client.db(dbName);
     collection = db.collection(collectionName);
-    //console.log(collection);
     })
 });
 
@@ -29,15 +28,6 @@ app.get('/map',function(req,res){
     fs.readFile("front-end/arun/arun.html",(err,data)=>{
     res.writeHead(200,{"Content-Type":"text/html"});
     res.end(data);
-    })
-})
-
-
-app.get('/barchart_grid.js', (req, res) => {
-    fs.readFile('js/barchart_grid.js', (err, data) => {
-        res.status(200);
-        res.append('Context-Type', 'text/javascript');
-        res.send(data);
     })
 })
 

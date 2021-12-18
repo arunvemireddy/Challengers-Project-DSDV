@@ -6,7 +6,6 @@ let bar_svg = d3.select("#barchart")
              .append('svg')
             .attr('width', bar_width+bar_margin.left+bar_margin.right)
             .attr('height', bar_height+bar_margin.top+bar_margin.bottom)
-            // .append('g').attr("transform", "translate(" + bar_margin.left + "," + bar_margin.top + ")");
 let bar_xScale,bar_yScale,bar_xAxis,bar_yaxis;
 
 //top 10 directors code
@@ -96,7 +95,6 @@ $.ajax({
 })
 }
 
-
 function updatebarChartDirector(value){
     let country = document.getElementById('country').value;
     if(value != 'cast'){
@@ -156,7 +154,6 @@ function updatebarChartDirector(value){
                         count=count+1;
                     }
                 }
-                //bar_xScale.domain([d3.min(newData,d=>d.value),d3.max(newData,d=>d.value)]);
                 bar_xScale.domain([0, d3.max(newData, (d) => d.value)]); // giving the domain which is x scale
                 let tickValues = bar_xScale.ticks().filter(tick => {
                     return (((tick*10) % 10) === 0)
@@ -175,8 +172,6 @@ function updatebarChartDirector(value){
                             .attr('class','bar')
                                 .attr('transform', d => "translate("+ bar_margin.left+"," + bar_yScale(d.key) + ")")
                             .append('rect')
-                            // .transition()
-                            // .duration(500)
                             .attr('width',d=>bar_xScale(d.value)-bar_margin.left)
                             .attr('height',bar_yScale.bandwidth());
                         },
@@ -237,7 +232,6 @@ function updatebarChartDirector(value){
                
                 // preparing the data for top 10 cast
                 const mapSort = new Map([...bar_map.entries()].sort((a, b) => b[1] - a[1]));
-                //console.log(mapSort);
                 let newData=[];
                 let item={};
                 let count=0;
@@ -250,7 +244,6 @@ function updatebarChartDirector(value){
                         count=count+1;
                     }
                 }
-                //bar_xScale.domain([d3.min(newData,d=>d.value),d3.max(newData,d=>d.value)]);
                 bar_xScale.domain([0, d3.max(newData, (d) => d.value)]);
                 let tickValues = bar_xScale.ticks().filter(tick => {
                     return (((tick*10) % 10) === 0)
